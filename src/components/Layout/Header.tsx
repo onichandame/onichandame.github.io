@@ -1,29 +1,35 @@
 import React, { FC } from "react"
+import { AppBar, Typography, Toolbar } from "@material-ui/core"
+import { makeStyles, Theme } from "@material-ui/core/styles"
 
 import { Lang } from "./Lang"
 import { LocalizedLink } from "../../i18n/LocalizedLink"
 import { useTranslation } from "../../i18n"
 
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    flexGrow: 1,
+    marginBottom: theme.spacing(2)
+  }
+}))
+
 export const Header: FC = () => {
   const { home } = useTranslation()
+  const styles = useStyles()
   return (
-    <header
-      style={{
-        background: `rebeccapurple`,
-        marginBottom: `1.45rem`
-      }}
-    >
-      <div
-        style={{
-          margin: `0 auto`,
-          maxWidth: 960,
-          padding: `1.45rem 1.0875rem`,
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-around"
-        }}
-      >
-        <h1 style={{ display: "flex", margin: 0 }}>
+    <AppBar className={styles.root}>
+      <Toolbar>
+        <Typography
+          variant={"h5"}
+          style={{
+            margin: `0 auto`,
+            maxWidth: 960,
+            padding: `1.45rem 1.0875rem`,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-around"
+          }}
+        >
           <LocalizedLink
             to="/"
             style={{
@@ -33,9 +39,9 @@ export const Header: FC = () => {
           >
             {home}
           </LocalizedLink>
-        </h1>
+        </Typography>
         <Lang />
-      </div>
-    </header>
+      </Toolbar>
+    </AppBar>
   )
 }
