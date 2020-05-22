@@ -1,6 +1,10 @@
 require("ts-node").register({ files: true })
 
 module.exports = {
+  siteMetadata: {
+    github: "https://github.com/onichandame",
+    homepage: "https://onichandame.github.io"
+  },
   plugins: [
     "gatsby-plugin-typescript",
     `gatsby-plugin-react-helmet`,

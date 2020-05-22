@@ -8,7 +8,7 @@ const { basename, dirname } = require("path")
 exports.onCreatePage = ({ page, actions }) => {
   const { createPage, deletePage } = actions
   deletePage(page)
-  locales.map(locale => {
+  Object.keys(locales).map(locale => {
     return createPage({
       ...page,
       path: localize(locale, page.path),
