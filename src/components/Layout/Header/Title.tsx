@@ -15,7 +15,7 @@ export const Title: FC = () => {
   const { home } = useTranslation()
   const { root } = useStyles()
   return (
-    <Typography className={root} variant={"h5"}>
+    <Typography className={root} variant={"h6"}>
       <LocalizedLink
         to="/"
         style={{

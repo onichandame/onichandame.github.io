@@ -1,6 +1,7 @@
 import React, { FC, ReactElement, useReducer } from "react"
 import {
   AppBar,
+  Grid,
   Toolbar,
   Slide,
   useScrollTrigger,
@@ -15,10 +16,21 @@ import { Lang } from "./Lang"
 import { Github } from "./Github"
 import { Sidebar } from "./Sidebar"
 
+const drawerWidth = 240
+
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
     marginBottom: theme.spacing(2)
+  },
+  drawer: {
+    width: drawerWidth
+  },
+  drawerContent: {
+    width: drawerWidth
+  },
+  menuButtom: {
+    marginRight: theme.spacing(2)
   }
 }))
 
@@ -35,11 +47,11 @@ export const Header: FC = props => {
   const styles = useStyles()
   const [open, toggle] = useReducer(old => !old, false)
   return (
-    <>
+    <div style={{ flexGrow: 1 }}>
       <HideOnScroll {...props}>
-        <AppBar color={"primary"} position={"fixed"} className={styles.root}>
+        <AppBar position={"fixed"} className={styles.root}>
           <Toolbar>
-            <IconButton onClick={toggle}>
+            <IconButton onClick={toggle} className={styles.menuButtom}>
               <Menu />
             </IconButton>
             <Title />
@@ -51,12 +63,21 @@ export const Header: FC = props => {
       <Drawer
         open={open}
         onClose={toggle}
-        style={{ width: 240 }}
+        className={styles.drawer}
         anchor="left"
         variant="temporary"
       >
-        <Sidebar />
+        <Grid
+          className={styles.drawerContent}
+          container
+          direction="row"
+          justify="center"
+        >
+          <Grid item xs={10}>
+            <Sidebar />
+          </Grid>
+        </Grid>
       </Drawer>
-    </>
+    </div>
   )
 }

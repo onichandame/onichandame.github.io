@@ -1,9 +1,6 @@
 import { localize } from "./localize"
-import { locales } from "./locales"
+import { purify } from "./purify"
 
 export const replaceLocale = (path: string, locale: string) => {
-  const subpaths = path.split("/").filter(subpath => !!subpath)
-  const currentLocale = subpaths[0]
-  if (Object.keys(locales).indexOf(currentLocale) >= 0) subpaths.shift()
-  return localize(locale, subpaths.join("/"))
+  return localize(locale, purify(path))
 }

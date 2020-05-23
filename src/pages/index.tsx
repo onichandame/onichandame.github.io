@@ -1,8 +1,9 @@
 import React, { FC } from "react"
 import { graphql, PageProps } from "gatsby"
+import { Typography } from "@material-ui/core"
 
 import { Image } from "../components/Image"
-import { LocalizedLink } from "../i18n"
+import { LocalizedLink, useTranslation } from "../i18n"
 
 type Props = PageProps<
   {
@@ -27,10 +28,10 @@ type Props = PageProps<
 >
 
 const IndexPage: FC<Props> = ({ data: { allMdx } }) => {
+  const { greeting } = useTranslation()
   return (
-    <>
-      <h1>Hi</h1>
-      <p>Welcome to my site.</p>
+    <div style={{ border: "1px green solid" }}>
+      <Typography variant="h3">{greeting}</Typography>
       <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
         <Image />
       </div>
@@ -44,7 +45,7 @@ const IndexPage: FC<Props> = ({ data: { allMdx } }) => {
           </div>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 

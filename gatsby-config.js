@@ -2,6 +2,7 @@ require("ts-node").register({ files: true })
 
 module.exports = {
   siteMetadata: {
+    author: "onichandame",
     github: "https://github.com/onichandame",
     homepage: "https://onichandame.github.io"
   },

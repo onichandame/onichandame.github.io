@@ -30,6 +30,7 @@ export const Lang: FC = () => {
       >
         {Object.keys(locales).map(locale => (
           <MenuItem
+            button
             onClick={() => {
               close()
               navigate(replaceLocale(window.location.pathname, locale))
