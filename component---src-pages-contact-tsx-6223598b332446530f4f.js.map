@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/pages/contact.tsx"],"names":["ContactPage"],"mappings":"6FAAA,gCAMeA,UAJS,WACtB,OAAO","file":"component---src-pages-contact-tsx-6223598b332446530f4f.js","sourcesContent":["import React, { FC } from \"react\"\n\nconst ContactPage: FC = () => {\n  return <div>hi</div>\n}\n\nexport default ContactPage\n"],"sourceRoot":""}
