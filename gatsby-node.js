@@ -62,13 +62,14 @@ exports.createPages = async ({ graphql, actions }) => {
   postList.forEach(({ node: post }) => {
     const slug = post.relativeDirectory
     const locale = post.childMdx.fields.locale
-    const { title, author } = post.childMdx.frontmatter
+    const { title, author, date } = post.childMdx.frontmatter
     createPage({
-      path: localize(locale, `/posts/${slug}`),
+      path: localize(locale, `/post/${slug}`),
       component: template,
       context: {
         locale,
         title,
+        date,
         author
       }
     })

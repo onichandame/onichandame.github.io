@@ -1,11 +1,21 @@
 import React, { FC, useContext } from "react"
-import { useStaticQuery, graphql } from "gatsby"
-import { List, Link, ListItem, Typography, Divider } from "@material-ui/core"
+import { useStaticQuery, graphql, navigate } from "gatsby"
+import { List, ListItem, Typography, Divider } from "@material-ui/core"
 
 import { LocaleContext, localize } from "../../../i18n"
 
-export const Sidebar: FC = props => {
+type Props = {
+  close: () => void
+}
+
+export const Sidebar: FC<Props> = ({ close, ...other }) => {
   const locale = useContext(LocaleContext)
+  const redirect = (path: string) => {
+    return () => {
+      close()
+      navigate(localize(locale, path))
+    }
+  }
   const data = useStaticQuery(graphql`
     query {
       site {
@@ -16,17 +26,23 @@ export const Sidebar: FC = props => {
     }
   `)
   return (
-    <div {...props}>
+    <div {...other}>
       <Typography variant={"h6"}>
-        <Link href={localize(locale, "/")}>
+        <ListItem button onClick={redirect("/")}>
           {data.site.siteMetadata.author}
-        </Link>
+        </ListItem>
       </Typography>
       <Divider />
       <List>
-        <ListItem button>Blog</ListItem>
-        <ListItem button>About</ListItem>
-        <ListItem button>Contact</ListItem>
+        <ListItem button onClick={redirect("/post")}>
+          Blog
+        </ListItem>
+        <ListItem button onClick={redirect("/about")}>
+          About
+        </ListItem>
+        <ListItem button onClick={redirect("/contact")}>
+          Contact
+        </ListItem>
       </List>
     </div>
   )

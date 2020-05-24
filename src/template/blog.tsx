@@ -1,12 +1,17 @@
 import React, { FC } from "react"
 import { graphql, PageProps } from "gatsby"
 import { MDXRenderer } from "gatsby-plugin-mdx"
+import { Grid, Typography } from "@material-ui/core"
+
+import { dateFormat } from "../utils"
 
 type Props = PageProps<
   {
     mdx: {
       frontmatter: {
         title: string
+        author: string
+        date: string
       }
       body: string
     }
@@ -20,10 +25,28 @@ type Props = PageProps<
 
 const Post: FC<Props> = ({ data: { mdx } }) => {
   return (
-    <>
-      <h1>{mdx.frontmatter.title}</h1>
-      <MDXRenderer>{mdx.body}</MDXRenderer>
-    </>
+    <Grid container direction={"column"} spacing={2}>
+      <Grid item>
+        <Typography variant={"h3"}>{mdx.frontmatter.title}</Typography>
+      </Grid>
+      <Grid item>
+        <Grid container justify={"space-between"} direction={"row"}>
+          <Grid item>
+            <Typography variant={"caption"}>
+              {mdx.frontmatter.author}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant={"caption"}>
+              {dateFormat(mdx.frontmatter.date)}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item>
+        <MDXRenderer>{mdx.body}</MDXRenderer>
+      </Grid>
+    </Grid>
   )
 }
 
@@ -37,6 +60,8 @@ export const query = graphql`
     ) {
       frontmatter {
         title
+        author
+        date
       }
       body
     }

@@ -20,8 +20,7 @@ const drawerWidth = 240
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    flexGrow: 1,
-    marginBottom: theme.spacing(2)
+    flexGrow: 1
   },
   drawer: {
     width: drawerWidth
@@ -47,9 +46,9 @@ export const Header: FC = props => {
   const styles = useStyles()
   const [open, toggle] = useReducer(old => !old, false)
   return (
-    <div style={{ flexGrow: 1 }}>
-      <HideOnScroll {...props}>
-        <AppBar position={"fixed"} className={styles.root}>
+    <>
+      <HideOnScroll>
+        <AppBar position={"static"} className={styles.root}>
           <Toolbar>
             <IconButton onClick={toggle} className={styles.menuButtom}>
               <Menu />
@@ -74,10 +73,10 @@ export const Header: FC = props => {
           justify="center"
         >
           <Grid item xs={10}>
-            <Sidebar />
+            <Sidebar close={toggle} />
           </Grid>
         </Grid>
       </Drawer>
-    </div>
+    </>
   )
 }

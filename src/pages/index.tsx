@@ -1,51 +1,32 @@
 import React, { FC } from "react"
-import { graphql, PageProps } from "gatsby"
-import { Typography } from "@material-ui/core"
+import { graphql } from "gatsby"
+import { Typography, Grid } from "@material-ui/core"
 
-import { Image } from "../components/Image"
+import { BlogPageProps } from "../types"
 import { LocalizedLink, useTranslation } from "../i18n"
+import { BlogList } from "../components/Blog"
 
-type Props = PageProps<
-  {
-    allMdx: {
-      edges: {
-        node: {
-          frontmatter: {
-            title: string
-          }
-          fields: {
-            name: string
-            locale: string
-          }
-          parent: {
-            relativeDirectory: string
-          }
-        }
-      }[]
-    }
-  },
-  { locale: string }
->
-
-const IndexPage: FC<Props> = ({ data: { allMdx } }) => {
-  const { greeting } = useTranslation()
+const IndexPage: FC<BlogPageProps> = ({ data: { allMdx } }) => {
+  const { greeting, more } = useTranslation()
   return (
-    <div style={{ border: "1px green solid" }}>
-      <Typography variant="h3">{greeting}</Typography>
-      <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
-        <Image />
-      </div>
-      <div>
-        {allMdx.edges.map(({ node: post }) => (
-          <div>
-            <h5>{post.frontmatter.title}</h5>
-            <LocalizedLink to={`posts/${post.parent.relativeDirectory}`}>
-              {post.parent.relativeDirectory}
-            </LocalizedLink>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Grid container spacing={5} alignItems={"stretch"} direction={"column"}>
+      <Grid item>
+        <Typography align={"center"} variant="h3">
+          {greeting}
+        </Typography>
+      </Grid>
+      <Grid item>
+        <BlogList
+          posts={allMdx.edges.map(({ node: post }) => ({
+            title: post.frontmatter.title,
+            date: post.frontmatter.date,
+            author: post.frontmatter.author,
+            slug: post.parent.relativeDirectory
+          }))}
+        />
+        <LocalizedLink to={"/post"}>{`${more}...`}</LocalizedLink>
+      </Grid>
+    </Grid>
   )
 }
 
@@ -53,11 +34,16 @@ export default IndexPage
 
 export const query = graphql`
   query Toc($locale: String!) {
-    allMdx(filter: { fields: { locale: { eq: $locale } } }) {
+    allMdx(
+      limit: 3
+      sort: { order: DESC, fields: frontmatter___date }
+      filter: { fields: { locale: { eq: $locale } } }
+    ) {
       edges {
         node {
           frontmatter {
             title
+            author
             date
           }
           fields {
