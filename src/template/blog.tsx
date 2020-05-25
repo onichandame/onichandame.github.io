@@ -14,6 +14,7 @@ type Props = PageProps<
         date: string
       }
       body: string
+      headings: string[]
     }
   },
   {
@@ -44,7 +45,7 @@ const Post: FC<Props> = ({ data: { mdx } }) => {
         </Grid>
       </Grid>
       <Grid item>
-        <MDXRenderer>{mdx.body}</MDXRenderer>
+        <MDXRenderer headings={mdx.headings}>{mdx.body}</MDXRenderer>
       </Grid>
     </Grid>
   )
@@ -64,6 +65,10 @@ export const query = graphql`
         date
       }
       body
+      headings {
+        value
+        depth
+      }
     }
   }
 `

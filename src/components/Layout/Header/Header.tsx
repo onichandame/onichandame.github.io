@@ -48,7 +48,7 @@ export const Header: FC = props => {
   return (
     <>
       <HideOnScroll>
-        <AppBar position={"static"} className={styles.root}>
+        <AppBar position={"sticky"} className={styles.root}>
           <Toolbar>
             <IconButton onClick={toggle} className={styles.menuButtom}>
               <Menu />

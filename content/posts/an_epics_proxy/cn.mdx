@@ -4,96 +4,116 @@ author: "onichandame"
 date: 2019-04-28
 ---
 
-# Background
+<!-- vim-markdown-toc GFM -->
 
-[EPICS][epics] is a well-known framework for controlling a wide range of hardware. Just like other inventions from the particle physicists, it reaches beyond the field of the particle physics experiments.
+* [背景](#背景)
+* [场景](#场景)
+* [技术考量](#技术考量)
+* [设计](#设计)
+  * [数据流](#数据流)
+  * [通信协议](#通信协议)
+  * [框架](#框架)
+* [实现](#实现)
+  * [可行性](#可行性)
+  * [建立Apollo服务器](#建立apollo服务器)
+  * [连接IOC](#连接ioc)
+* [部署](#部署)
+* [链接](#链接)
 
-# Scenario
+<!-- vim-markdown-toc -->
 
-[EPICS][epics] provides a comprehensive bucket of tools for almost all use cases. In the age of the internet, however, many unprecedented demands have emerged. One of which is to allow remote control over the internet.
+# 背景
 
-Here comes a trivial problem that has never been addressed before: how to communicate as a web front with the EPICS IOCs?
+[EPICS][epics] 是一个专业控制硬件的软件框架。与粒子物理学家的其它发明一样，它在其它领域也发挥了极大的作用。
 
-# Technical Consideration
+# 场景
 
-As a never-before new system, one of the most fundamental engineering principles is to stick with the existing standards as much as possible. Based on this principle, 3 sub-principles must be followed.
+[EPICS][epics] 框架自带一整套完整的工具以满足传统的需求，但在互联网时代，它无法满足许多新的需求。
 
-1. use loosely-coupled microservices each provides a limited and well-defined functionality
-2. communication protocols and data structure are kept simple and consistent across the smallest necessary scope.
-3. use standardized protocols, deployment workflow, and libraries
+一个[EPICS][epics]无法回答的简单问题是：如何在web前端和IOC之间建立通信？
 
-Hence a bridge between IOCs of the 20th century and the web frameworks of the 21st century is necessary.
+# 技术考量
 
-# Design
+作为一个全新的系统，必须符合一个最基本的工程原理：尽量符合现有的标准。基于这个考虑，可以得出3个基本指南。
 
-## Data Flow
+1. 使用微服务组成全系统。每个微服务仅提供一个简单但明确的功能。
+2. 通信协议和数据结构尽量简单，且在最小必要的scope中保持一致。
+3. 使用标准协议，工作流和库
 
-The data flow is the foundation of any software system and should be drafted before the actual development.
+基于以上考虑，必须有一个介于来自20世纪的IOC和21世纪的web之间的代理服务器。
 
-![Basic structure](https://dev-to-uploads.s3.amazonaws.com/i/b7oijip5waywh4ls464z.png)
+# 设计
 
-## Communication Protocol
+## 数据流
 
-According to the basic structure, the proxy needs to handle 2 types of protocols: one for the microservices and one for the IOCs. The former has many standards I can choose from. The latter only has two standards at the moment: CA and PV.
+数据流是所有软件系统的基石。因此必须先确定数据流。
 
-As PV is only available to EPICS 7+, for better compatibility of the proxy, CA should be supported first.
+![hi](/image/epics-proxy.png)
 
-Considering that `caget` `caput` are compatible with the stateless protocols, but `camonitor` requires a stateful protocol like WebSocket, the protocol to the microservices must support both cases. Hence the most popular communication protocol HTTP-based REST is not an option. After a quick research, GraphQL from Facebook is found to satisfy all the demands.
+如上图所示，web服务与IOC质检的通信经过代理中转。代理服务器将EPICS协议与web协议互相转换。
 
-## Framework
+## 通信协议
 
-Both CA and GraphQL are too complicated to make from scratch. Therefore some existing frameworks must be utilized. Based on the choice of the protocols, 2 frameworks are required:
+基于以上架构，代理需要处理2种协议：web服务和IOC。前者有许多标准化协议，后者只有2种：CA和PV。
 
-1. a GraphQL server
-2. a CA library
+因为PV仅支持EPICS 7+版本，为了兼容旧版本，代理应首先支持CA。
 
-The most popular GraphQL server is the apollo-server, and it is the only server that supports real-time subscriptions out of the box.
+考虑到`caget`和`caput`都是无状态方法，但`camonitor`必须长时间保持开启，面向web服务的通信协议必须支持两种情况。因此web端最火的基于HTTP的REST通信架构不能满足需求。经过考虑后，Facebook创立的GraphQL是此情景下的最优解。
 
-The only CA library comes from EPICS-base, in the form of dynamic libraries and executable binaries.
+## 框架
 
-# Implementation
+CA和GraphQL都不是极度简单的协议，因此不可能自己造轮子，必须找到现有的框架。基于上面选择的两个通讯协议，代理服务器必须同时支持2个不同的框架：
 
-The development of the proxy was not smooth and simple, therefore I will divide this section into challenges.
+1. 一个GraphQL服务器
+2. 一个CA客户端
 
-## Feasibility
+最成熟的GraphQL服务器是apollo-server。它也是唯一一个默认支持Subscription功能的服务器框架。
 
-The very first question is: is such proxy even possible?
+唯一的CA客户端是EPICS-base自带的动态库。
 
-This question can be broken down into 2:
+# 实现
 
-1. is it possible to integrate CA library with GraphQL server?
-2. is the proxy able to communicate with the IOCs on the other hosts in the network?
+开发代理服务器并不简单，因此我将详细介绍开发中遇到的问题。
 
-The first question is answered by [this tool][pyepics] and [this tool][node-epics]. Thanks to the great pioneers who made these tools!
+## 可行性
 
-The second question can be cleared by a simple test using the tools mentioned above.
+开发的第一步是：设计是否可能实现？
 
-## Setup Apollo Server
+这个问题可以分为2个子问题：
 
-GraphQL is way more complicated than it sounds if you are new to it. There are many useful resources out there to help newbies set up their first server. I found [this](https://www.apollographql.com/docs/apollo-server/getting-started/) and [this][type-graphql] to be very helpful.
+1. 是否可能将CA客户端和GraphQL融合起来
+2. 代理服务器是否以与网络中任意位置的IOC通信
 
-The biggest challenge here is to understand the concept of the resolver. It is a standardized component of GraphQL so many different packages can work together without a problem. As I use TypeScript to code, [type-graphql][type-graphql] suits my needs best. Although a code-first GraphQL server is better, the Apollo server does not support the code-first approach.
+第一个小问题已经被[this tool][pyepics] 和 [this tool][node-epics]回答了. 感谢这两个工具的开发者！
 
-Having implemented `caget`, `caput` and `camonitor` as `Query`, `Mutation` and `Subscription` respectively, the server part is done.
+第二个小问题可以简单地用上面的两个工具做测试以证实可行性。
 
-## Connect to IOC
+## 建立Apollo服务器
 
-Here comes the most tricky part. As Apollo Server only runs with Node.js, using JS/TS is the only choice. However, [node-epics][node-epics] is too old to support the latest Node.js. Hence I made [my own fork][epics-ioc-connection]. ~~Sadly it depends on `ref-napi` which only works on node before 13. Therefore [it][epics-ioc-connection] requires node <13, which puts this proxy to the same restriction. Luckily we have containers that minimize the impact of such restriction.~~
+GraphQL对新手并不想看上其那么友好。网上有很多工具可以帮助新手建立第一个服务器。[this](https://www.apollographql.com/docs/apollo-server/getting-started/) 和 [this][type-graphql]对我的帮助最大。
 
-After some head-scratching, [this tool][epics-ioc-connection] is published. The connection to the IOC is easily implemented and tested.
+最核心的问题是理解resolver的作用。它在GraphQL标准中有详细的定义，因此不同的工具可以紧密合作。我习惯用TypeScript开发，因此[type-graphql][type-graphql]最适合我的要求。其实code-first服务器更加符合我的口味，但Apollo服务器不支持。
 
-This issue took me a week before the first version is published whereas the other issues only took me a couple of days.
+在将`caget`，`caput`和`camonitor`分别用`Query`，`Mutation`和`Subscription`实现后，服务器已经搭建好了。
 
-# Deployment
+## 连接IOC
 
-As the proxy relies on a specific version of the Node, it is better shipped with the Node of the correct version. Hence docker is the best solution.
+现在是最难的部分。 因为apollo-server只能在Node.js中运行，使用JS/TS是唯一的选择。但是，[node-epics][node-epics]已经多年没更新，无法适配最新版Node。 因此我自己制作了一个[fork][epics-ioc-connection].
 
-Personally I use Kubernetes to manage the containers. I recommend anyone who needs docker to consider to switch to Kubernetes as it is just awesome.
+在付出了一把头发后，[这个工具][epics-ioc-connection]制作完成。它与IOC的通信已经通过测试。
 
-# Links
+其它问题都是几天就解决，这个问题耗费了我一个星期，是本项目中最困难的。
 
-[click here](https://github.com/onichandame/epics-proxy/) for the proxy
-[click here][epics-ioc-connection] for the JS binding of CA
+# 部署
+
+因为代理服务器基于一个特定的Node版本，最好将其与适配的Node一起发布。因此容器是最好的解决方案。
+
+我个人推荐使用Kubernetes管理容器。
+
+# 链接
+
+[点击此处](https://github.com/onichandame/epics-proxy/)获取代理服务器
+[点击此处][epics-ioc-connection]获取CA的JS接口
 
 [epics]: https://epics-controls.org/
 [pyepics]: https://github.com/pyepics/pyepics

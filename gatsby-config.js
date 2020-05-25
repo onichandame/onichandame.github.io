@@ -46,7 +46,12 @@ module.exports = {
         path: `${__dirname}/content/posts/`
       }
     },
-    "gatsby-plugin-mdx",
+    {
+      resolve: "gatsby-plugin-mdx",
+      options: {
+        remarkPlugins: [require("remark-slug")] // add heading anchor to mdx posts
+      }
+    },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     `gatsby-plugin-offline`

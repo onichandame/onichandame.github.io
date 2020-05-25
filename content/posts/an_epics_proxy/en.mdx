@@ -4,6 +4,24 @@ author: "onichandame"
 date: 2019-04-28
 ---
 
+<!-- vim-markdown-toc GFM -->
+
+* [Background](#background)
+* [Scenario](#scenario)
+* [Technical Consideration](#technical-consideration)
+* [Design](#design)
+  * [Data Flow](#data-flow)
+  * [Communication Protocol](#communication-protocol)
+  * [Framework](#framework)
+* [Implementation](#implementation)
+  * [Feasibility](#feasibility)
+  * [Setup Apollo Server](#setup-apollo-server)
+  * [Connect to IOC](#connect-to-ioc)
+* [Deployment](#deployment)
+* [Links](#links)
+
+<!-- vim-markdown-toc -->
+
 # Background
 
 [EPICS][epics] is a well-known framework for controlling a wide range of hardware. Just like other inventions from the particle physicists, it reaches beyond the field of the particle physics experiments.
@@ -30,11 +48,13 @@ Hence a bridge between IOCs of the 20th century and the web frameworks of the 21
 
 The data flow is the foundation of any software system and should be drafted before the actual development.
 
-![Basic structure](https://dev-to-uploads.s3.amazonaws.com/i/b7oijip5waywh4ls464z.png)
+![hi](/image/epics-proxy.png)
+
+As seen above, the web services communicates with the IOC through a proxy. The proxy ought to be able to translate the web protocols to Epics protocols and vice versa.
 
 ## Communication Protocol
 
-According to the basic structure, the proxy needs to handle 2 types of protocols: one for the microservices and one for the IOCs. The former has many standards I can choose from. The latter only has two standards at the moment: CA and PV.
+According to the basic structure, the proxy needs to handle 2 types of protocols: one for the web services and one for the IOCs. The former has many standards I can choose from. The latter only has two standards at the moment: CA and PV.
 
 As PV is only available to EPICS 7+, for better compatibility of the proxy, CA should be supported first.
 
@@ -78,7 +98,7 @@ Having implemented `caget`, `caput` and `camonitor` as `Query`, `Mutation` and `
 
 ## Connect to IOC
 
-Here comes the most tricky part. As Apollo Server only runs with Node.js, using JS/TS is the only choice. However, [node-epics][node-epics] is too old to support the latest Node.js. Hence I made [my own fork][epics-ioc-connection]. ~~Sadly it depends on `ref-napi` which only works on node before 13. Therefore [it][epics-ioc-connection] requires node <13, which puts this proxy to the same restriction. Luckily we have containers that minimize the impact of such restriction.~~
+Here comes the most tricky part. As Apollo Server only runs with Node.js, using JS/TS is the only choice. However, [node-epics][node-epics] is too old to support the latest Node.js. Hence I made [my own fork][epics-ioc-connection].
 
 After some head-scratching, [this tool][epics-ioc-connection] is published. The connection to the IOC is easily implemented and tested.
 

@@ -58,7 +58,9 @@ exports.createPages = async ({ graphql, actions }) => {
     console.log(blogs.errors)
     return
   }
-  const postList = blogs.data.blog.edges
+  const postList = blogs.data.blog.edges.filter(
+    ({ node: { childMdx } }) => !!childMdx
+  )
   postList.forEach(({ node: post }) => {
     const slug = post.relativeDirectory
     const locale = post.childMdx.fields.locale
