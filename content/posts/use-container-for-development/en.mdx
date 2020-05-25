@@ -1,0 +1,47 @@
+---
+title: "Use Container for Development"
+author: "onichandame"
+date: 2019-05-25
+---
+
+As a full-time developer working in an office, I have to regularly switch between 'working-at-home' and 'working-at-office' modes. Thus it comes with a major problem: how to synchronize the development environment at home and the office?
+
+# Thoughts
+
+The first thought that naively comes to my mind is automating the setup process of the development environment. As a half DevOps, scripting is the first tool that comes up when I need to solve a problem.
+
+However, scripting does not treat different OS/platforms equally. So I have to write different scripts for different OS. This approach does not guarantee the synchronization between different OS. Therefore scripting does not help.
+
+Now the Container comes to rescue. I had to deal with containers a lot for work so it is not too unfamiliar. Container suits the need for the following reasons:
+
+1. abstracts the OS so only 1 OS needs to be considered
+2. sharing files with different host OS is easy
+3. available on most major OS
+
+# Challenges
+
+It is not trivial to use container for development. First of all I need to access the tty of a container using `-it` flag. Then the development files need to be stored on the host for permanent storage using `-v` flag. Lastly flag `-p` is required to map the ports of the container and the host. Apart from these common setup, several unusual problems need to be solved.
+
+## Podman
+
+Podman is a daemonless container runtime. It requires `--security-opt label=disable` to bypass SELinux for sharing files with the host.
+
+## Reduce Image Size
+
+As development environment requires a lot of tools to be installed, the image is inevitably bloated. My image weights 2.7GB. Therefore it is very helpful to reduce the image size.
+
+The best way to reduce image size is rebasing the image to alpine and musl-libc. However, one of my project requries glibc and CentOS. I cannot shift my development to alpine.
+
+Another approach is to merge the steps. This approach cannot reduce the image size by a lot, but it has another benefit.
+
+To reduce the number of steps as much as possible, I put all setup commands to a bash script. So the Dockerfile only contains 1 line running the setup command.
+
+## NOFILE Limit
+
+When developing a frontend with plenty of source files and dependencies, the development server usually needs to watch all the changes in the source files. This sometimes exceeds the system's watch file limit.
+
+The watch file limit is defined by a hard limit and a soft limit. When the soft limit is exceeded, the user is warned. When the hard limit is hit, the watcher's process throws an error. Therefore both limits need to be raised.
+
+The solution is to increase the host's NOFILE limit. The containers automatically inherits the host's limit.
+
+[ulimit]: /posts/ulimit

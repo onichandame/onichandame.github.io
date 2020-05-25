@@ -9,7 +9,13 @@ date: 2019-05-25
 * [Background](#background)
 * [Challenges](#challenges)
   * [Static Site Generation](#static-site-generation)
+  * [Internationalization](#internationalization)
+    * [Gatsby Plugin i18n](#gatsby-plugin-i18n)
+    * [Translate Myself](#translate-myself)
   * [Markdown and JSX](#markdown-and-jsx)
+    * [GraphQL](#graphql)
+    * [Heading Anchor](#heading-anchor)
+  * [Deployment](#deployment)
 
 <!-- vim-markdown-toc -->
 
@@ -61,13 +67,46 @@ The first approach I tried was using a gatsby plugin. This is the best option fo
 
 According to [the official guide](https://github.com/gatsbyjs/gatsby/tree/master/examples/using-i18n/), it is possible to achieve field level translation and page level translation at the same time.
 
+Based on the guide, I made a [template][template] that bundles gatsby with mdx, page level translation and field level translation.
+
 ## Markdown and JSX
 
 The most significant difference between a blog and a regular site is that blogs are served in virtually the same layout. For the ease of maintenance, it would be better to keep the source of the blogs in a stable file format that has not changed in the past 10 years. It would also be beneficial if the source and the output are very similar so that overhead is small, and it is visually clear during writing.
 
 Combining the above considerations, markdown is the best option. Markdown standard is very stable. Although some improvements have been added in the past few years, all plugins keep a very good interoperability and and good backward compatibility.
 
+However, the original markdown is quite limited in terms of functionality. It's implicity constrains its potential, especially for the flexbility of UI. Hence an enhancement needs to be made.
+
+JSX is a great tool for creating fancy UI. Using markdown as the backbone and occasionally decorated with JSX will provide a decent layout for blogs. Thus `gatsby-plugin-mdx` is chosen.
+
+Having decided to adopt mdx, several issues came in the way.
+
+### GraphQL
+
+mdx in Gatsby allows page query. However, I personally do not like to use page query. Moreover, it is not usable in non-page components, which significantly limits its usage.
+
+Sadly, component level query is not available in mdx as the JSX components in mdx are not compiled to retrieve static data during build time. Therefore the codes like `useStaticQuery` is left to run in runtime, where the query will not succeed.
+
+### Heading Anchor
+
+A very useful markdown enhancement is the anchor of the headings. This is a requirement for table of contents. However, `gatsby-plugin-mdx` is not shipped with this support.
+
+According to [this][heading-anchor], this feature can be easily added.
+
+## Deployment
+
+The last problem is to host the site. There are generally 3 methods to choose:
+
+1. buy a managed hosting service
+2. host on a self-managed server
+3. find a free hosting service
+
+The option 1 and 2 are for lazy users who do not want to spend time digging the internet. I happen to know a hosting service for free: Github Pages.
+
+Github Pages can be easily set up following the official guide. Bear in mind that there are 2 types of Page: project and personal. The one used for the purpose of this blog is the personal one.
+
 [gatsby]: https://www.gatsbyjs.org
 [why-self-host]: https://bloggingexplorer.com/self-hosted-blog
 [i18n]: https://github.com/angeloocana/gatsby-plugin-i18n
+[template]: https://github.com/onichandame/gatsby-template
 [heading-anchor]: https://johno.com/mdx-table-of-contents-components-in-gatsby
