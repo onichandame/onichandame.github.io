@@ -1,8 +1,8 @@
 {
   "home": "Onichandame's Home",
-  "greeting": "Welcom to my homepage",
+  "greeting": "Welcome to my homepage",
   "more": "more",
   "error404": "PAGE NOT FOUND",
   "error404_desc": "You just hit a route that doesn't exist... the sadness.",
-  "author": "author"
+  "author": "Xiao Zhang"
 }

@@ -4,7 +4,21 @@ author: "onichandame"
 date: 2019-05-25
 ---
 
-As a full-time developer working in an office, I have to regularly switch between 'working-at-home' and 'working-at-office' modes. Thus it comes with a major problem: how to synchronize the development environment at home and the office?
+import {LocalizedLink} from '../../../src/i18n'
+
+<!-- vim-markdown-toc GFM -->
+
+* [Thoughts](#thoughts)
+* [Challenges](#challenges)
+  * [Podman](#podman)
+  * [Reduce Image Size](#reduce-image-size)
+  * [NOFILE Limit](#nofile-limit)
+  * [UTF-8 Encoding](#utf-8-encoding)
+* [Implementation](#implementation)
+
+<!-- vim-markdown-toc -->
+
+As a full-time developer working in office, I have to regularly switch between 'working-at-home' and 'working-at-office' modes. Thus it comes with a major problem: how to synchronize the development environment at home and the office?
 
 # Thoughts
 
@@ -22,6 +36,8 @@ Now the Container comes to rescue. I had to deal with containers a lot for work 
 
 It is not trivial to use container for development. First of all I need to access the tty of a container using `-it` flag. Then the development files need to be stored on the host for permanent storage using `-v` flag. Lastly flag `-p` is required to map the ports of the container and the host. Apart from these common setup, several unusual problems need to be solved.
 
+Basic knowledge of Linux configuration and commands are preassumed.
+
 ## Podman
 
 Podman is a daemonless container runtime. It requires `--security-opt label=disable` to bypass SELinux for sharing files with the host.
@@ -32,7 +48,7 @@ As development environment requires a lot of tools to be installed, the image is
 
 The best way to reduce image size is rebasing the image to alpine and musl-libc. However, one of my project requries glibc and CentOS. I cannot shift my development to alpine.
 
-Another approach is to merge the steps. This approach cannot reduce the image size by a lot, but it has another benefit.
+Another approach is to merge the steps. This approach cannot reduce the image size by a lot, but it has another benefit that clarifies the setup process.
 
 To reduce the number of steps as much as possible, I put all setup commands to a bash script. So the Dockerfile only contains 1 line running the setup command.
 
@@ -42,6 +58,28 @@ When developing a frontend with plenty of source files and dependencies, the dev
 
 The watch file limit is defined by a hard limit and a soft limit. When the soft limit is exceeded, the user is warned. When the hard limit is hit, the watcher's process throws an error. Therefore both limits need to be raised.
 
-The solution is to increase the host's NOFILE limit. The containers automatically inherits the host's limit.
+The solution is to increase the host's NOFILE limit. The containers automatically inherits the host's limit. <LocalizedLink to={'/post/ulimit'}>Check this</LocalizedLink> for the detailed setup.
 
-[ulimit]: /posts/ulimit
+## UTF-8 Encoding
+
+As the base image is usually minimized for performance, the default encoding is set to ASCII. This won't be a problem if the host machine has UTF-8 enabled and that container interface directly displays the output as the encoded characters are passed straight to the host for decoding. However, it gets problematic when using tmux inside the container as tmux only passes the decoded character to the screen which it does not understand.
+
+The first step is the add special characters to the container. In my case, I added Simplified Chinese by installing `glibc-langpack-zh`. Run `locale -a` to check if the desired language has been installed.
+
+The last step is setting the default encoding to UTF-8 by adding `export LANG="zh_CN.UTF-8"` and `export LC_ALL="zh_CN.UTF-8"` to bashrc.
+
+# Implementation
+
+The structure of the source project is as follows:
+
+![struc](/image/container-development-structure.png)
+
+The run.sh is the main script that is run during container build.
+
+The files folder contains all the configuration files like vimrc and bashrc.
+
+[Check this][src] for the source files.
+[Check this][hub] for the built image.
+
+[src]: https://github.com/onichandame/docker-dev/
+[hub]: https://hub.docker.com/repository/docker/onichandame/docker-dev

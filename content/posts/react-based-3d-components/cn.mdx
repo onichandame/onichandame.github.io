@@ -1,0 +1,82 @@
+---
+title: "基于React的3D组件化开发"
+author: "onichandame"
+date: 2019-05-13
+---
+
+<!-- vim-markdown-toc GFM -->
+
+* [背景](#背景)
+* [需求分析](#需求分析)
+  * [用户体验](#用户体验)
+  * [技术限制](#技术限制)
+* [技术分析](#技术分析)
+  * [React 360](#react-360)
+  * [Babylon](#babylon)
+  * [基于Three的解决方案](#基于three的解决方案)
+    * [React-Three-Fiber](#react-three-fiber)
+* [实现](#实现)
+
+<!-- vim-markdown-toc -->
+
+这是我在3D/React开发中的个人经验的记录。因项目仍在开发中，内容可能会随时修改。
+
+# 背景
+
+我需要设计实现一个3维的设施信息化模型（BIM）。这个BIM模块需要与现有的基于Next.js的前端融合起来。
+
+# 需求分析
+
+## 用户体验
+
+最终用户是对IT或BIM都不熟悉的工人，因此所有功能必须简洁明了。
+
+1. UI和真实设施必须一眼就能联系起来
+2. 操作模式必须简单
+3. 所有文字和数字要尽量少且明了
+4. 一个相机重置按钮，一个场景重置按钮，每个组件都需要包含在一个虚拟按钮中，按下虚拟按钮会进入该组件的详情界面。
+
+## 技术限制
+
+1. 必须与Next.js融合
+2. 必须能加载GLTF或OBJ等通用3维模型
+3. 必须用code-splitted来尽量减小对原始网页的影响。
+
+# 技术分析
+
+基于以上需求，我研究了一些现有技术。很多框架都很有用，其中大部分都基于以下3种基础技术。
+
+## React 360
+
+这是Facebook为VR开发的一个UI框架，它默认支持3维且支持从GLTF和OBJ文件中读取模型。乍一看它会是最优选。
+
+1. 默认支持3维
+2. 默认支持互动
+3. 支持GLTF和OBJ模型
+
+但是它基于React Native，因此很难将其融合进传统的网页。当然，可以使用`<iframe>`将其植入网页，但这种模式会极大提升部署流程的复杂度。而且它专注于VR，并不是我真正想要的。最后，它的用户数量没有其它框架多，因此社区支持比其它框架少。
+
+## Babylon
+
+根据[官方文档](https://doc.babylonjs.com/resources/babylonjs_and_reactjs)，这个框架自带React支持。但是文档中也指出使用React的话会造成performance方面的问题。最佳方案是用纯JavaScript做开发。而我希望利用React的组件化能力。对此也有一些解决方案，如React DOM或reconciler，但这些方面的社区非常小。[现有方案](https://github.com/brianzinn/react-babylonjs)在写下这句话时仅有140个赞。作为独立开发者，社区支持是我比较看重的方面。
+
+## 基于Three的解决方案
+
+接下来是主菜。Three.js作为web业界最受欢迎的3维开发框架，它有最大的社区支持。但是它并未对React做适配，因此React-Three社区相对于Three社区来说还是比较小的。
+
+### [React-Three-Fiber](https://www.npmjs.com/package/react-three-fiber)
+
+这是最合适的框架了。
+
+1. 与React高度融合，且没有明显的performance影响
+2. 能够加载GLTF模型
+3. 只是一个Three.js的wrapper，因此Three社区的很大一部分资源都有用
+4. 创作者还开发了许多辅助工具，如ray casting，动画等
+
+唯一不在此框架内的是Next.js的动态导入技术。这并不是因为框架本身有缺陷，而是因为一个web开发中3维开发的基础属性：2维仅需要纯HTML即可，3维需要加载外部的模型。如果需要在React组件中包含模型，则需要将组件在运行时使用`next/dynamic`动态导入。
+
+而且动态导入自带code-splitting效果。
+
+# 实现
+
+现在仅完成可行性研究，具体的组件还未完成。

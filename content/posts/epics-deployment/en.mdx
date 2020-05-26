@@ -1,0 +1,42 @@
+---
+title: "EPICS Deployment"
+author: "onichandame"
+date: 2019-05-08
+---
+
+import {LocalizedLink} from '../../../src/i18n'
+
+<!-- vim-markdown-toc GFM -->
+
+* [System Architecture](#system-architecture)
+* [Challenges](#challenges)
+  * [Connection between Different Hosts](#connection-between-different-hosts)
+
+<!-- vim-markdown-toc -->
+
+As a newbie in the world of EPICS and hardware control system, every day many new challenges come and many are solved. This is a record of the experience so that when the same problem comes in the future, I don't need to get through it again.
+
+# System Architecture
+
+![arch](/image/epics-arch.png)
+
+The details of the architecture are not covered here. Broadly speaking, the proxy converts EPICS protocol to GraphQL or vice versa. For details, check <LocalizedLink to={'/post/an-epics-proxy'}>this post</LocalizedLink> for detailes.
+
+# Challenges
+
+This section records all major challenges I have met. Some are trivial but I was not smart enough to find a solution immediately.
+
+## Connection between Different Hosts
+
+The connection between CA client and IOC server is the most anti-intuitive part for me. EPICS provides a convenient technology "UDP broadcasting", which helps establish connection when both parties have no knowledge of the IP address of each other.
+
+However, This method only works as expected when both parties are in the same and the only subnet. e.g. when the CA client has 2 IP addresses in 2 different subnets, such as 10.0.0.1 and 192.168.1.1, it is not guaranteed to be able to find an IOC whose address is 192.168.1.100.
+
+When no better architecture design is feasible, one has to provide the IP address of the IOC server to the CA client, so that the client knows where to look for the IOC. The way to tell is by setting an environmental variable `EPICS_CA_ADDR_LIST` when starting the CA client. For example:
+
+```bash
+export EPICS_CA_ADDR_LIST=192.168.1.100
+# CA connect here
+```
+
+However, it is generally a better practice to minimize the necessary configurations. A better solution here is putting the CA client in the subnet where IOC servers are found and no other subnets. In my architecture, it means that the web services and IOCs, as well as the proxy, are in the same subnet. This is achievable when the number of IOCs is relatively small. When there is large number of IOCs, they must be divided into different subnets for better management. In that case, a workaround can be made by introducing another layer of proxy between web services and the EPICS proxy, so that the EPICS proxy can stay with 1 IP.

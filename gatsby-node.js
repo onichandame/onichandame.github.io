@@ -27,11 +27,17 @@ exports.onCreateNode = ({ node, actions }) => {
     const name = basename(dirname(node.fileAbsolutePath))
     createNodeField({ node, name: "locale", value: locale })
     createNodeField({ node, name: "name", value: name })
+    createNodeField({
+      node,
+      name: "type",
+      value: name === "resume" ? "resume" : "post"
+    })
   }
 }
 
 exports.createPages = async ({ graphql, actions }) => {
-  const template = require.resolve("./src/template/blog")
+  const blogTemplate = require.resolve("./src/template/blog")
+  const resumeTemplate = require.resolve("./src/template/resume")
   const { createPage } = actions
   const blogs = await graphql(`
     {
@@ -42,6 +48,7 @@ exports.createPages = async ({ graphql, actions }) => {
             childMdx {
               fields {
                 locale
+                type
               }
               frontmatter {
                 title
@@ -54,25 +61,58 @@ exports.createPages = async ({ graphql, actions }) => {
       }
     }
   `)
-  if (blogs.errors) {
+  const resume = await graphql(`
+    {
+      resume: allFile(filter: { sourceInstanceName: { eq: "resume" } }) {
+        edges {
+          node {
+            relativeDirectory
+            childMdx {
+              fields {
+                locale
+                type
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  `)
+  if (blogs.errors || resume.errors) {
     console.log(blogs.errors)
     return
   }
   const postList = blogs.data.blog.edges.filter(
     ({ node: { childMdx } }) => !!childMdx
   )
+  const resumeList = resume.data.resume.edges.filter(
+    ({ node: { childMdx } }) => !!childMdx
+  )
   postList.forEach(({ node: post }) => {
     const slug = post.relativeDirectory
-    const locale = post.childMdx.fields.locale
+    const { locale, type } = post.childMdx.fields
     const { title, author, date } = post.childMdx.frontmatter
     createPage({
       path: localize(locale, `/post/${slug}`),
-      component: template,
+      component: blogTemplate,
       context: {
         locale,
+        type,
         title,
         date,
         author
+      }
+    })
+  })
+  resumeList.forEach(({ node: content }) => {
+    const { locale, type } = content.childMdx.fields
+    createPage({
+      path: localize(locale, `/about`),
+      component: resumeTemplate,
+      context: {
+        locale,
+        type
       }
     })
   })

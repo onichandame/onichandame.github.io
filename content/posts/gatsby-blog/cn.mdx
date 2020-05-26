@@ -12,10 +12,15 @@ date: 2019-05-25
   * [国际化](#国际化)
     * [使用插件](#使用插件)
     * [自行翻译](#自行翻译)
-  * [Markdown and JSX](#markdown-and-jsx)
+  * [Markdown和JSX](#markdown和jsx)
     * [GraphQL](#graphql)
-    * [Heading Anchor](#heading-anchor)
-  * [Deployment](#deployment)
+    * [Heading锚](#heading锚)
+  * [部署](#部署)
+  * [Gatsby编译系统](#gatsby编译系统)
+  * [GraphQL](#graphql-1)
+  * [国际化](#国际化-1)
+    * [页面级](#页面级)
+    * [字段级](#字段级)
 
 <!-- vim-markdown-toc -->
 
@@ -106,8 +111,57 @@ markdown有个很有用的增强，就是heading锚。而且它是TOC的必要�
 
 根据官方文档，可以轻易地配置Github Pages。要注意的是，Github提供2种Page，项目和个人。适合这个场景的是个人Page。
 
+## Gatsby编译系统
+
+首先要学习的是Gatsby如何编译代码。
+
+大部分源文件都用JSX编写，最终生成一个静态网站。其中大部分问题都已经被Gatsby自带的工具解决了，比如客户端路由。唯一需要使用者额外小心的是数据获取。
+
+有服务器端开发背景的人会下意识地写服务器端运行的代码，但在如Gatsby一样的[SSG工具](#生成静态网站)中这是绝对禁止的。Gatsby仅允许2种运行环境：编译环境和浏览器运行环境。
+
+在编译时，所有数据都要被获取以生成静态HTML文件。在浏览器运行时仅有浏览器API可用。
+
+编译时运行的代码在下列位置：
+
+1. PageQuery和StaticQuery（GraphQL query仅在编译时运行）
+2. 项目根目录下的`gatsby-node.js`，`gatsby-config.js`，`gatsby-browser.js`和`gatsby-ssr.js`
+
+其它所有代码都会在编译时变成静态HTML。
+
+想了解如`gatsby-node.js`之类的详细信息，参见[此处][concept].
+
+## GraphQL
+
+Gatsby中的GraphQL在某种意义上是非常规的。在传统的数据获取模型中，客户端先发起请求，后端再根据请求返回数据。我习惯性地认为这个过程发生在运行时。但Gatsby仅在编译时运行所有的GraphQL query，所有的query都不会在输出文件中出现。
+
+因此在编译时必须提供所有需要的数据和schema。一个主要的数据源是`gatsby-config.js`和`gatsby-node.js`。参见[此文][concept]获取详细信息。
+
+## 国际化
+
+为同步实现页面级翻译和字段级翻译，我做了以下设计。
+
+### 页面级
+
+页面级翻译仅支持mdx源文件，例如博客和简历。
+
+一个博客的源文件结构如下图所示：
+
+![post](/i18n-post.png)
+
+所有同一页面的翻译文件都在同一子目录下。子目录的名字就是博客的slug地址。文件名对应locale。所有这些信息都在`gatsby-node.js`中提取并传递至对应的页面。
+
+因为所有页面都有同样的布局，`gatsby-plugin-mdx`可以接收一个模板组件，并基于模板生成所有博客页面。
+
+### 字段级
+
+字段级翻译文件也采用类似的文件结构，文件名对应locale。我制作了一个custom hook用来获取字段。
+
+[点击此处][my-blog]进入我的主页！
+
 [gatsby]: https://www.gatsbyjs.org
 [why-self-host]: https://bloggingexplorer.com/self-hosted-blog
 [i18n]: https://github.com/angeloocana/gatsby-plugin-i18n
 [template]: https://github.com/onichandame/gatsby-template
 [heading-anchor]: https://johno.com/mdx-table-of-contents-components-in-gatsby
+[concept]: https://www.gatsbyjs.org/docs/conceptual-guide/
+[my-blog]: https://onichandame.com

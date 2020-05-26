@@ -1,0 +1,82 @@
+---
+title: "React-based 3D Components"
+author: "onichandame"
+date: 2019-05-13
+---
+
+<!-- vim-markdown-toc GFM -->
+
+* [Background](#background)
+* [Demand Analysis](#demand-analysis)
+  * [End-User Experience](#end-user-experience)
+  * [Technical Constraints](#technical-constraints)
+* [Technology Analysis](#technology-analysis)
+  * [React 360](#react-360)
+  * [Babylon](#babylon)
+  * [Three-based Solution](#three-based-solution)
+    * [React-Three-Fiber](#react-three-fiber)
+* [Implementation](#implementation)
+
+<!-- vim-markdown-toc -->
+
+This is a record of my personal experience on the 3D React component development. The content may be updated at any time because the project is still under development.
+
+# Background
+
+I need to design and build a 3D based building information modelling(BIM). This BIM component needs to reside in an existing system based on Next.js, a UI framework based on React and specialized in SSR optimization.
+
+# Demand Analysis
+
+## End-User Experience
+
+The end user is an untrained worker who is not specialzed in either IT or BIM. Therefore the functions are simple and understandable for every computer user.
+
+1. An intrinsic mapping between the UI and the real building, down to the component level
+2. An intrinsic interactive pattern based on ray casting
+3. All texts and numbers on the UI must be clear and minimal
+4. A camera reset button, a scene reload button and a virtual button on each component to enter the corresponding page of details
+
+## Technical Constraints
+
+1. Must be integrated into a Next.js project
+2. Must be able to load 3D models like GLTF and OBJ
+3. Must be code-splitted to minimize the impact on the performance of the original website
+
+# Technology Analysis
+
+Based on the demand analysis, I conducted research to find some existing technologies that I can make use of. Many good frameworks are found but they all boils down to 3 fundamental technologies.
+
+## React 360
+
+This is a framework built by Facebook for VR development. It also supports 3D UI out of the box. By default it loads models from GLTF and OBJ formats. At the first glance it may be the best choice for the following reasons:
+
+1. 3D out of the box
+2. interactive out of the box
+3. supports open source models GLTF and OBJ
+
+But it is based on React Native, which makes it difficult to integrate into the existing webpage. Truly it can be embedded in `<iframe>`. But this workaround brings more complexities into the deployment phase. Moreover, this framework aims at VR, which is not a 100% overlap with BIM. Not to say that this framework is not as popular as its competitors, which means that it is more defficult to get help from the community.
+
+## Babylon
+
+This framework supports the integration with React officially, according to the [official docs](https://doc.babylonjs.com/resources/babylonjs_and_reactjs). However the docs also mentions that there may be performance overhead if used with React. The optimal choice is to use the pure JavaScript, which is what I would like to avoid. There are feasible ways such as React DOM or reconciler. But again the community is quite small. [The existing solution](https://github.com/brianzinn/react-babylonjs) has just 140 stars on GitHub at the time of writing this sentence. As an individual developer the size of community is at the top of my list.
+
+## Three-based Solution
+
+Now the main course comes. Three.js is the most popular 3D framework in Web development. It has the largest most active community. However, it is not designed for React hence the React-Three community is not comparable to the entire Three community.
+
+### [React-Three-Fiber](https://www.npmjs.com/package/react-three-fiber)
+
+This is the most suitable framework in this condition.
+
+1. Deep integration with React with no significant performance overhead
+2. Able to load GLTF models using useLoader hook, GLTF loader from Three and React Suspense
+3. Just a wrapper around three so info from three community is most likely helpful
+4. Many helper packages from the same team that help ray casting, animation and more.
+
+The only hack needed here is the dynamic import of Next.js with SSR disabled. It is not a traditional hack that needs a proper fix, but a non-intuitive but reasonable solution for the problem: 2D rendering is compatible with SSR as SSR produces plain HTML, but 3D requires runtime loading of the resources such as models. If models are wrapped in React components, these components must be dynamically loaded using `next/dynamic`.
+
+Also, dynamic importing of Next.js provides code-splitting out of the box.
+
+# Implementation
+
+Currently, only the feasibility analysis is done. The package has not been designed yet.

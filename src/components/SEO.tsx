@@ -1,9 +1,9 @@
 import React, { FC } from "react"
 import { Helmet } from "react-helmet"
-import { useTranslation } from "../../i18n"
+import { useTranslation } from "../i18n"
 
 type Props = {
-  title: string
+  title?: string
   description?: string
   lang?: string
   meta?: []
@@ -13,7 +13,7 @@ export const SEO: FC<Props> = ({
   description = "",
   lang = "en",
   meta = [],
-  title
+  title = ""
 }) => {
   const { home, author } = useTranslation()
 

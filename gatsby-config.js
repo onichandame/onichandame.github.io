@@ -47,6 +47,13 @@ module.exports = {
       }
     },
     {
+      resolve: "gatsby-source-filesystem",
+      options: {
+        name: "resume",
+        path: `${__dirname}/content/resume`
+      }
+    },
+    {
       resolve: "gatsby-plugin-mdx",
       options: {
         remarkPlugins: [require("remark-slug")] // add heading anchor to mdx posts

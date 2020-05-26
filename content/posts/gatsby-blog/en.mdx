@@ -16,6 +16,12 @@ date: 2019-05-25
     * [GraphQL](#graphql)
     * [Heading Anchor](#heading-anchor)
   * [Deployment](#deployment)
+* [Implementation](#implementation)
+  * [Gatsby Build System](#gatsby-build-system)
+  * [GraphQL](#graphql-1)
+  * [Internationalization](#internationalization-1)
+    * [Page Level](#page-level)
+    * [Field Level](#field-level)
 
 <!-- vim-markdown-toc -->
 
@@ -73,7 +79,7 @@ Based on the guide, I made a [template][template] that bundles gatsby with mdx, 
 
 The most significant difference between a blog and a regular site is that blogs are served in virtually the same layout. For the ease of maintenance, it would be better to keep the source of the blogs in a stable file format that has not changed in the past 10 years. It would also be beneficial if the source and the output are very similar so that overhead is small, and it is visually clear during writing.
 
-Combining the above considerations, markdown is the best option. Markdown standard is very stable. Although some improvements have been added in the past few years, all plugins keep a very good interoperability and and good backward compatibility.
+Combining the above considerations, markdown is the best option. Markdown standard is very stable. Although some improvements have been added in the past few years, all plugins keep a very good interoperability and good backward compatibility.
 
 However, the original markdown is quite limited in terms of functionality. It's implicity constrains its potential, especially for the flexbility of UI. Hence an enhancement needs to be made.
 
@@ -89,9 +95,9 @@ Sadly, component level query is not available in mdx as the JSX components in md
 
 ### Heading Anchor
 
-A very useful markdown enhancement is the anchor of the headings. This is a requirement for table of contents. However, `gatsby-plugin-mdx` is not shipped with this support.
+A very useful markdown enhancement is the anchor of the headings. This is one of the basic requirements for table of contents. However, `gatsby-plugin-mdx` is not shipped with this support.
 
-According to [this][heading-anchor], this feature can be easily added.
+According to [this blog][heading-anchor], this feature can be easily added.
 
 ## Deployment
 
@@ -105,8 +111,61 @@ The option 1 and 2 are for lazy users who do not want to spend time digging the 
 
 Github Pages can be easily set up following the official guide. Bear in mind that there are 2 types of Page: project and personal. The one used for the purpose of this blog is the personal one.
 
+# Implementation
+
+Here I record the detailed implementation of the blog site I made. Basic knowledge of React.js is preassumed.
+
+## Gatsby Build System
+
+The first thing to learn is the build system of gatsby.
+
+The source code is written in JSX and the output is static website. There are several fundamental issues here, most have been addressed by Gatsby itself, such as client side routing. One thing that requires special care is the data retrieval.
+
+People from the background of server side coding may intuitively write codes that are left to run on server during runtime. This is a big no when using Gatsby, or any other [SSG](#static-site-generation) tool. Gatsby only allows 2 runtimes: buildtime and browser runtime.
+
+During buildtime, all data are retrieved to create static HTML. During browser runtime, only browser API is available.
+
+The codes for buildtime reside in the following locations:
+
+1. page query and static query(GraphQL queries are run once at buildtime)
+2. `gatsby-node.js`, `gatsby-config.js`, `gatsby-browser.js` and `gatsby-ssr.js` under the project's root directory
+
+All other codes are compiled to static HTML at buildtime.
+
+For details of the `gatsby-node.js` etc. see [the conceptual guid][concept].
+
+## GraphQL
+
+The usage of GraphQL in Gatsby is somewhat unusual. In traditional data retrieval modes, a client fires a query to a backend API and the backend respond with the required data. Naively I thought it happens during runtime. But Gatsby runs all GraphQL queries during buildtime. Then all the queries are stripped away from the output.
+
+Therefore all the queries must be given all the required data and schema during buildtime. One of the main sources of data is `gatsby-config.js` and `gatsby-node.js`. check [the guide][concept] for details.
+
+## Internationalization
+
+To unify page level and field level internationalization, the following design is made.
+
+### Page Level
+
+Only mdx files are accepted for page level translation, such as posts and resume page.
+
+The example source structure of a post is:
+
+![post](/i18n-post.png)
+
+All translations of the page are kept in one folder, which is named as the slug of the post. The file name represents the locales. All the information is extracted by codes in `gatsby-node.js` then is passed down to the corresponding pages.
+
+As all the pages have the same layout, a template is passed to the `gatsby-plugin-mdx` that is applied to all post pages.
+
+### Field Level
+
+Field level translations are kept in a similar structure, where the file name represents the locale. A custom hook is used to retrieve those translations.
+
+Check [my blog][my-blog] for the final result!
+
 [gatsby]: https://www.gatsbyjs.org
 [why-self-host]: https://bloggingexplorer.com/self-hosted-blog
 [i18n]: https://github.com/angeloocana/gatsby-plugin-i18n
 [template]: https://github.com/onichandame/gatsby-template
 [heading-anchor]: https://johno.com/mdx-table-of-contents-components-in-gatsby
+[concept]: https://www.gatsbyjs.org/docs/conceptual-guide/
+[my-blog]: https://onichandame.com

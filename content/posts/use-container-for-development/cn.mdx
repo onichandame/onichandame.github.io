@@ -3,3 +3,82 @@ title: "用容器开发"
 author: "onichandame"
 date: 2019-05-25
 ---
+
+import {LocalizedLink} from '../../../src/i18n'
+
+<!-- vim-markdown-toc GFM -->
+
+* [一些思考](#一些思考)
+* [挑战Challenges](#挑战challenges)
+  * [Podman](#podman)
+  * [缩减镜像大小](#缩减镜像大小)
+  * [NOFILE限制](#nofile限制)
+  * [UTF-8编码](#utf-8编码)
+* [实现](#实现)
+
+<!-- vim-markdown-toc -->
+
+作为一个全职开发者，我经常需要在办公室和家里交替办公。由此导致了一个问题：如何同步家里和办公室里的开发环境？
+
+# 一些思考
+
+最基本的想法是自动化开发环境的配置。作为半个DevOps，脚本是我最信赖的工具。
+
+但是脚本在不同的OS中有不同的写法。因此我必须针对不同的OS编写不同的脚本。这个方法不能保证不同OS上的脚本能同步更新。因此脚本在这个问题中用处不大。
+
+这就是容器有用的地方了。因工作需要，我对容器有一定的了解。容器的以下特性有助于解决此问题：
+
+1. 抽象了一个统一的OS，因此我只需要考虑1个OS。
+2. 与宿主机共享文件很方便
+3. 在所有主流OS上都能运行
+
+# 挑战Challenges
+
+使用容器做开发并不简单。首先我需要用`-it`选项进入容器的TTY界面。然后用`-v`选项将开发文件永久存储在宿主机上。最后用`-p`选项将容器的端口映射到宿主机上。除了这些常见的步骤，一些不常见的问题也需要解决。
+
+以下需要对Linux配置和命令有基本的了解。
+
+## Podman
+
+Podman是一个无daemon的容器运行环境。为绕过SELinux对硬盘读写的限制，需要使用`--security-opt label=disable`选项。
+
+## 缩减镜像大小
+
+因为开发环境需要很多工具，镜像的大小不可避免地会失控。我的镜像有2.7 GB大，因此需要尽量缩减。
+
+最优的办法是使用alpine和musl-libc重构镜像。但是我负责的一个项目需要glibc和CentOS，因此我不能采用alpine。
+
+另一个可行的办法是减少中间镜像。这个方法不能显著减少镜像大小，但它还有助于管理配置步骤。
+
+为最大限度减少中间步骤，我将所有配置命令都放在一个bash脚本中，因此Dockerfile只需要运行一个中间命令即可。
+
+## NOFILE限制
+
+在开发前端时，开发服务器需要监控许多源文件的变动，在源文件很多时，经常会超出默认的打开文件数量限制。
+
+文件数量限制由一个硬限制和一个软限制组成。当超过软限制时，用户会收到警告；当硬限制被突破时，系统会报错。因此两种限制都需要提升。
+
+我的解决方案是提升宿主机的NOFILE限制，容器会自动继承宿主机的配置。详细步骤在<LocalizedLink to={'/post/ulimit'}>此文</LocalizedLink>中。
+
+## UTF-8编码
+
+为提升performance，大多数基础镜像都只支持ASCII以尽量缩减大小。这在宿主机支持UTF-8且容器直接将字符输出至屏幕时没有问题。但当容器内使用tmux时，tmux先将字符解码，再将解码失败的乱码发送至屏幕。
+
+解决的第一步是在容器中添加特殊字符支持。我需要添加简中，因此我安装了`glibc-langpack-zh`。运行`locale -a`以检查是否安装成功。
+
+最后一步是选择默认编码。我在bashrc中添加了`export LANG="zh_CN.UTF-8"`和`export LC_ALL="zh_CN.UTF-8"`。
+
+# 实现
+
+源项目的结构如下所示：
+
+![struc](/image/container-development-structure.png)
+
+run.sh是建造镜像时用的脚本。
+files目录下包含所有必须的配置文件，如bashrc和vimrc等。
+
+[点此][src]获取源文件
+[点此][hub]获取镜像
+
+[src]: https://github.com/onichandame/docker-dev/
+[hub]: https://hub.docker.com/repository/docker/onichandame/docker-dev
