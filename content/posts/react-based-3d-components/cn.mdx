@@ -16,6 +16,9 @@ date: 2019-05-13
   * [基于Three的解决方案](#基于three的解决方案)
     * [React-Three-Fiber](#react-three-fiber)
 * [实现](#实现)
+  * [设计](#设计)
+  * [加载模型](#加载模型)
+  * [Viewport Movement](#viewport-movement)
 
 <!-- vim-markdown-toc -->
 
@@ -64,7 +67,7 @@ date: 2019-05-13
 
 接下来是主菜。Three.js作为web业界最受欢迎的3维开发框架，它有最大的社区支持。但是它并未对React做适配，因此React-Three社区相对于Three社区来说还是比较小的。
 
-### [React-Three-Fiber](https://www.npmjs.com/package/react-three-fiber)
+### [React-Three-Fiber][r3f]
 
 这是最合适的框架了。
 
@@ -79,4 +82,115 @@ date: 2019-05-13
 
 # 实现
 
-现在仅完成可行性研究，具体的组件还未完成。
+本节记录我在实现BIM时解决的主要问题。以下需要对React和3维开发有基本的了解。
+
+## 设计
+
+因为BIM是用来表示物理构件间的位置关系和构件的状态，应该尽量在一个屏幕上囊括所有构件。基于这个准则，所有构件都应该放置在一个平面上，因此镜头可以限制在一个平面上移动。
+
+![example](/image/bim-example.jpg)
+
+如上图所示，所有构件都在一个截屏上可见。构件的形状和位置信息由模型提供，构件的状态信息由模型的颜色提供。
+
+用户和BIM间的互动可以总结如下：
+
+1. 点击构件以进入构件的控制界面
+2. 将镜头位置重置为初始位置
+
+第一个互动可以用单击模型实现。
+
+第二个互动可以用单击重置按钮实现。
+
+## 加载模型
+
+首要的问题是加载设计师制作的模型。在<LocalizedLink to={'/post/collaboration-using-blender'}>此文</LocalizedLink>中，我实现了将SolidWorks模型转换成Blender模型。而Blender可以将模型输出冲GLTF格式。
+
+[R3F][r3f]提供了hook `useLoader`用以和three的`GLTFLoader`一起加载GLTF模型。
+
+```typescript
+import { useLoader } from 'react-three-fiber'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+
+export const Model = () => {
+  const gltf = useLoader(GLTFLoader, '/static/model.gblb')
+  return <primitive object={gltf.scene} dispose={null} {...other} />
+}
+```
+
+## 视界移动
+
+移动视界基本上有2种方法：移动镜头（第一人称）或移动模型（上帝视角）这两种方法对平移的效果都一样，因此将根据它们对旋转的不同效果做取舍。
+
+在无法将所有模型囊括的巨大场景种，第一人称更符合人的直觉。在全场景中，上帝视角是更好的选择。
+
+在BIM中，所有模型都应该在一个屏幕中显示，因此应该选择上帝视角。
+
+上帝视角可以用`react-use-gesture`的`useGesture`和`@react-spring/core`的`useSpring`实现。
+
+```typescript
+import { a } from '@react-spring/three'
+const useControl = (
+  ...[xBounds, yBounds, zBounds, { domTarget }]: Props
+): [
+  { x: SpringValue<number>; y: SpringValue<number>; z: SpringValue<number> },
+  ReturnType<typeof useGesture>
+] => {
+  const [{ x }, setX] = useSpring<{ x: number }>(() => ({
+    x: 0,
+    config: config.slow,
+  }))
+  const [{ y }, setY] = useSpring<{ y: number }>(() => ({
+    y: 5,
+    config: config.slow,
+  }))
+  const [{ z }, setZ] = useSpring<{ z: number }>(() => ({
+    z: 5,
+    config: config.slow,
+  }))
+  const zoom = useCallback(
+    ({ wheeling, xy: [, newY], previous: [, oldY], memo = z.get() }) => {
+      if (wheeling) {
+        const newZ = clamp(memo + newY - oldY, ...zBounds)
+        setZ({ z: newZ })
+        return newZ
+      } else {
+        return memo
+      }
+    },
+    [zBounds, z, setZ]
+  )
+  const drag = useCallback(
+    ({ dragging, offset: [newX, newY], memo = [x.get(), y.get()] }) => {
+      if (dragging) {
+        setX({ x: newX })
+        setY({ y: -newY })
+        return [newX, newY]
+      }
+      return memo
+    },
+    [xBounds, yBounds, x, y, setX, setY]
+  )
+  const bind = useGesture({ onWheel: zoom, onDrag: drag }, { domTarget })
+  useEffect(() => {
+    domTarget && bind()
+  }, [domTarget, bind])
+  return [{ x, y, z }, bind]
+}
+
+export const App = ({children}) => {
+  const bound: [number, number] = [-200, 200]
+  const [{ x, y, z }] = useControl(bound, bound, bound, { domTarget: window })
+  return (
+    <a.group
+      position-x={x.interpolate(x => (x / 500) * 10)}
+      position-y={y.interpolate(x => (x / 500) * 10)}
+      position-z={z.interpolate(x => (x / 500) * 25)}
+    >
+      {children}
+    </a.group>
+  )
+```
+
+上面输出的`App`可以将其children中的模型包裹在一个上帝视角中，平移和缩放都可以。
+
+[r3f]: https://www.npmjs.com/package/react-three-fiber
