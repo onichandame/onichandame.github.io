@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-05-25
+date: 2019-05-28
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -14,6 +14,8 @@ import {LocalizedLink} from '../../../src/i18n'
   * [Reduce Image Size](#reduce-image-size)
   * [NOFILE Limit](#nofile-limit)
   * [UTF-8 Encoding](#utf-8-encoding)
+  * [Windows 10](#windows-10)
+    * [Docker Engine](#docker-engine)
 * [Implementation](#implementation)
 
 <!-- vim-markdown-toc -->
@@ -68,6 +70,24 @@ The first step is the add special characters to the container. In my case, I add
 
 The last step is setting the default encoding to UTF-8 by adding `export LANG="zh_CN.UTF-8"` and `export LC_ALL="zh_CN.UTF-8"` to bashrc.
 
+## Windows 10
+
+Docker was originally made for Linux. Running in on Windows is always troublesome. Here I records the main issues solved for Windows 10.
+
+### Docker Engine
+
+At the time writing this sentence, Docker Desktop mainly provides 2 engines: HyperV(legacy) and WSL 2.
+
+HyperV works as a traditional VM hypervisor, which is utilized by Docker Desktop to maintain a VM where the docker daemon is run.
+
+WSL 2 on the other hand, provides a deeply integrated Linux kernel. This is a faster solution so I choose to use this engine.
+
+The first step is to install WSL 2. Check [this][wsl] for the official guide.
+
+Having WSL 2 installed, now check the **Use the WSL 2 based engine** option in the General settings of the Docker Desktop. Restart the docker daemon for this action to take effect. **Note: by restarting the daemon, all the images in the old daemon will be lost!**.
+
+WSL 2 at this moment suffers from a fatal bug. If you try to start a Linux distro backed by WSL 2, and see the error message **the attempted operation is not supported for the type of object referenced.**, it means that WinSock has caused the WSL 2 to collapse. According to [this issue][winsock], running `netsh winsock reset` as admin works around the bug once and for all.
+
 # Implementation
 
 The structure of the source project is as follows:
@@ -84,3 +104,5 @@ The files folder contains all the configuration files like vimrc and bashrc.
 
 [src]: https://github.com/onichandame/docker-dev/
 [hub]: https://hub.docker.com/repository/docker/onichandame/docker-dev
+[wsl]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
+[winsock]: https://github.com/microsoft/WSL/issues/4177
