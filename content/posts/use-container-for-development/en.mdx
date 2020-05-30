@@ -16,6 +16,7 @@ import {LocalizedLink} from '../../../src/i18n'
   * [UTF-8 Encoding](#utf-8-encoding)
   * [Windows 10](#windows-10)
     * [Docker Engine](#docker-engine)
+    * [HyperV](#hyperv)
 * [Implementation](#implementation)
 
 <!-- vim-markdown-toc -->
@@ -87,6 +88,10 @@ The first step is to install WSL 2. Check [this][wsl] for the official guide.
 Having WSL 2 installed, now check the **Use the WSL 2 based engine** option in the General settings of the Docker Desktop. Restart the docker daemon for this action to take effect. **Note: by restarting the daemon, all the images in the old daemon will be lost!**.
 
 WSL 2 at this moment suffers from a fatal bug. If you try to start a Linux distro backed by WSL 2, and see the error message **the attempted operation is not supported for the type of object referenced.**, it means that WinSock has caused the WSL 2 to collapse. According to [this issue][winsock], running `netsh winsock reset` as admin works around the bug once and for all.
+
+### HyperV
+
+No matter you choose HyperV or WSL 2 as the engine, HyperV service must be enabled. However, MicroSoft made a very bad default behaviour that disables virtualization in BIOS once the HyperV related services are enabled. Thus it is required to go to BIOS and enable hardware virtualization after enabling HyperV every time.
 
 # Implementation
 

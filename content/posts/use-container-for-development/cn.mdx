@@ -9,11 +9,14 @@ import {LocalizedLink} from '../../../src/i18n'
 <!-- vim-markdown-toc GFM -->
 
 * [一些思考](#一些思考)
-* [挑战Challenges](#挑战challenges)
+* [挑战](#挑战)
   * [Podman](#podman)
   * [缩减镜像大小](#缩减镜像大小)
   * [NOFILE限制](#nofile限制)
   * [UTF-8编码](#utf-8编码)
+  * [Windows 10](#windows-10)
+    * [Docker引擎](#docker引擎)
+    * [HyperV](#hyperv)
 * [实现](#实现)
 
 <!-- vim-markdown-toc -->
@@ -85,6 +88,10 @@ HyperV就是一个传统的VM hypervisor，Docker用它建立一个跑docker后�
 安装完毕WSL 2后，勾选Docker Desktop的General settings中的**Use the WSL 2 based engine**选项，然后重启docker后台让更改生效。**注意：重启后台后旧后台上的所有镜像都会删除！**
 
 当前版本的WSL 2有一个恶性bug。如果你启动一个基于WSL 2的Linux发行版时，显示错误信息**the attempted operation is not supported for the type of object referenced.**，这意味着WinSock导致WSL 2崩溃了。基于[此问题][winsock]，以管理员模式运行`netsh winsock reset`可以永久解决这个问题。
+
+### HyperV
+
+无论选择使用HyperV还是WSL 2，HyperV服务都必须被启用。但是微软做了个非常蠢的设定，在HyperV被启用后，BIOS里的虚拟化会被关掉。因此在每次启用HyperV后，都必须手动进入BIOS启用虚拟化。
 
 # 实现
 
