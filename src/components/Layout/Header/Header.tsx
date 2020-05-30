@@ -5,13 +5,14 @@ import {
   Toolbar,
   Slide,
   useScrollTrigger,
-  IconButton,
   Drawer
 } from "@material-ui/core"
-import { Menu } from "@material-ui/icons"
 import { makeStyles, Theme } from "@material-ui/core/styles"
 
 import { Title } from "./Title"
+import { Blog } from "./Blog"
+import { About } from "./About"
+import { Contact } from "./Contact"
 import { Lang } from "./Lang"
 import { Github } from "./Github"
 import { Sidebar } from "./Sidebar"
@@ -42,20 +43,40 @@ const HideOnScroll: FC = ({ children }) => {
   )
 }
 
-export const Header: FC = props => {
+export const Header: FC = () => {
   const styles = useStyles()
   const [open, toggle] = useReducer(old => !old, false)
   return (
     <>
       <HideOnScroll>
-        <AppBar position={"sticky"} className={styles.root}>
+        <AppBar
+          color={"transparent"}
+          position={"sticky"}
+          className={styles.root}
+        >
           <Toolbar>
-            <IconButton onClick={toggle} className={styles.menuButtom}>
-              <Menu />
-            </IconButton>
-            <Title />
-            <Lang />
-            <Github />
+            <Grid container direction={"row"} justify={"space-between"}>
+              <Grid item>
+                <Grid container direction={"row"}>
+                  <Grid item>
+                    <Title />
+                  </Grid>
+                  <Grid item>
+                    <Blog />
+                  </Grid>
+                  <Grid item>
+                    <About />
+                  </Grid>
+                  <Grid item>
+                    <Contact />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <Lang />
+                <Github />
+              </Grid>
+            </Grid>
           </Toolbar>
         </AppBar>
       </HideOnScroll>

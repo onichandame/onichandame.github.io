@@ -4,7 +4,6 @@ import { makeStyles, Theme } from "@material-ui/core/styles"
 
 import { ThemeProvider } from "../Theme"
 import { LocaleContext } from "../../i18n"
-import "./Layout.css"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 
