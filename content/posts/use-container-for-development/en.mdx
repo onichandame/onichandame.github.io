@@ -93,6 +93,8 @@ WSL 2 at this moment suffers from a fatal bug. If you try to start a Linux distr
 
 No matter you choose HyperV or WSL 2 as the engine, HyperV service must be enabled. However, MicroSoft made a very bad default behaviour that disables virtualization in BIOS once the HyperV related services are enabled. Thus it is required to go to BIOS and enable hardware virtualization after enabling HyperV every time.
 
+Thanks to [this issue][hyperv]
+
 # Implementation
 
 The structure of the source project is as follows:
@@ -111,3 +113,4 @@ The files folder contains all the configuration files like vimrc and bashrc.
 [hub]: https://hub.docker.com/repository/docker/onichandame/docker-dev
 [wsl]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
 [winsock]: https://github.com/microsoft/WSL/issues/4177
+[hyperv]: https://answers.microsoft.com/en-us/windows/forum/all/resolving-wslregisterdistribution-error-0x80370102/412cf42b-1424-444c-bb95-4aa2b5fe5eaf

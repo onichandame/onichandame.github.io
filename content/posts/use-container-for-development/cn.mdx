@@ -93,6 +93,8 @@ HyperV就是一个传统的VM hypervisor，Docker用它建立一个跑docker后�
 
 无论选择使用HyperV还是WSL 2，HyperV服务都必须被启用。但是微软做了个非常蠢的设定，在HyperV被启用后，BIOS里的虚拟化会被关掉。因此在每次启用HyperV后，都必须手动进入BIOS启用虚拟化。
 
+感谢[此问题][hyperv]
+
 # 实现
 
 源项目的结构如下所示：
@@ -110,3 +112,4 @@ files目录下包含所有必须的配置文件，如bashrc和vimrc等。
 [hub]: https://hub.docker.com/repository/docker/onichandame/docker-dev
 [wsl]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
 [winsock]: https://github.com/microsoft/WSL/issues/4177
+[hyperv]: https://answers.microsoft.com/en-us/windows/forum/all/resolving-wslregisterdistribution-error-0x80370102/412cf42b-1424-444c-bb95-4aa2b5fe5eaf
