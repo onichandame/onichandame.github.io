@@ -5,5 +5,5 @@ import { useTranslation } from "../../../i18n"
 
 export const Blog: FC = () => {
   const { blog } = useTranslation()
-  return <Entry>{blog}</Entry>
+  return <Entry to={"/post"}>{blog}</Entry>
 }

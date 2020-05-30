@@ -8,13 +8,7 @@ export const Title: FC = () => {
   const { home } = useTranslation()
   return (
     <Typography variant={"h6"}>
-      <LocalizedLink
-        to="/"
-        style={{
-          color: `white`,
-          textDecoration: `none`
-        }}
-      >
+      <LocalizedLink to="/" decoration={"none"}>
         {home}
       </LocalizedLink>
     </Typography>

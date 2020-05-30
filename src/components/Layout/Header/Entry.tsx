@@ -1,8 +1,16 @@
-import React, { FC, ComponentProps } from "react"
-import { Button } from "@material-ui/core"
+import React, { FC } from "react"
+import { Typography } from "@material-ui/core"
 
-type Props = ComponentProps<typeof Button>
+import { LocalizedLink } from "../../../i18n/LocalizedLink"
 
-export const Entry: FC<Props> = props => {
-  return <Button variant={"text"} {...props} />
+type Props = {
+  to: string
+}
+
+export const Entry: FC<Props> = ({ to, ...other }) => {
+  return (
+    <LocalizedLink decoration={"none"} to={to}>
+      <Typography {...other} variant={"button"} />
+    </LocalizedLink>
+  )
 }

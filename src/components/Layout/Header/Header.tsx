@@ -49,15 +49,21 @@ export const Header: FC = () => {
   return (
     <>
       <HideOnScroll>
-        <AppBar
-          color={"transparent"}
-          position={"sticky"}
-          className={styles.root}
-        >
+        <AppBar color={"primary"} position={"sticky"} className={styles.root}>
           <Toolbar>
-            <Grid container direction={"row"} justify={"space-between"}>
+            <Grid
+              container
+              direction={"row"}
+              justify={"space-between"}
+              alignItems={"center"}
+            >
               <Grid item>
-                <Grid container direction={"row"}>
+                <Grid
+                  container
+                  alignItems={"center"}
+                  direction={"row"}
+                  spacing={2}
+                >
                   <Grid item>
                     <Title />
                   </Grid>
@@ -73,8 +79,14 @@ export const Header: FC = () => {
                 </Grid>
               </Grid>
               <Grid item>
-                <Lang />
-                <Github />
+                <Grid alignItems={"center"} container direction={"row"}>
+                  <Grid item>
+                    <Lang />
+                  </Grid>
+                  <Grid item>
+                    <Github />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Toolbar>

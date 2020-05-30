@@ -15,7 +15,7 @@ const IndexPage: FC<BlogPageProps> = ({
   return (
     <>
       <SEO lang={locale} />
-      <Grid container spacing={5} alignItems={"stretch"} direction={"column"}>
+      <Grid container alignItems={"stretch"} direction={"column"}>
         <Grid item>
           <Typography align={"center"} variant="h3">
             {greeting}
