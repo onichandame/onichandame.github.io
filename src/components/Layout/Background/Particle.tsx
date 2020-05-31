@@ -13,7 +13,7 @@ export const Particle: FC<Props> = props => {
         emissive={new Color(0x00ff00)}
         emissiveIntensity={1}
         reflectivity={1}
-        color={"red"}
+        color={"blue"}
         attach="material"
       />
     </mesh>

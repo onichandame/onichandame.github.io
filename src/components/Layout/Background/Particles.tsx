@@ -1,6 +1,6 @@
 // particles rotating around a center point
 import React, { FC, useRef, useMemo } from "react"
-import { Vector3, Mesh, Group } from "three"
+import { Vector3, Group } from "three"
 import { useFrame } from "react-three-fiber"
 import { clamp } from "@onichandame/math"
 
@@ -17,15 +17,11 @@ const speed = (0.1 * Math.PI) / 180
 
 export const Particles: FC<Props> = ({ count }) => {
   const group = useRef<Group>(null)
-  const particles = useMemo<
-    { ref: React.MutableRefObject<Mesh>; component: React.ReactNode }[]
-  >(() => {
+  const particles = useMemo<{ component: React.ReactNode }[]>(() => {
     let result = []
     for (let i = 0; i < count; ++i) {
-      const ref = useRef<Mesh>(null)
       const randAngle = clamp(Math.random() * 2 * Math.PI, 0, 2 * Math.PI)
       result.push({
-        ref: ref,
         component: (
           <Particle
             position={[
@@ -33,7 +29,6 @@ export const Particles: FC<Props> = ({ count }) => {
               Math.cos(randAngle) * radius,
               Math.sin(randAngle) * radius
             ]}
-            ref={ref}
           />
         )
       })

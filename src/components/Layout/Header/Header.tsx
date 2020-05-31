@@ -49,7 +49,7 @@ export const Header: FC = () => {
   return (
     <>
       <HideOnScroll>
-        <AppBar color={"inherit"} position={"sticky"} className={styles.root}>
+        <AppBar color={"primary"} position={"sticky"} className={styles.root}>
           <Toolbar>
             <Grid
               container
