@@ -7,6 +7,8 @@ export const Scene: FC = ({ children }) => {
     <Suspense fallback={null}>
       <StandardEffects />
       <ambientLight />
+      <pointLight position={[-5, 0, 0]} intensity={5} />
+      <pointLight position={[0, -5, 0]} intensity={2} />
       {children}
     </Suspense>
   )

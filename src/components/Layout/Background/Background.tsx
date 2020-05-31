@@ -1,17 +1,23 @@
-import React, { FC } from "react"
-import "three"
+import React, { FC, ComponentProps } from "react"
 import { Canvas } from "react-three-fiber"
 
 import { Scene } from "./Scene"
+import { Particles } from "./Particles"
 
-export const Background: FC = props => {
+type Props = Omit<ComponentProps<typeof Canvas>, "children">
+
+export const Background: FC<Props> = props => {
   return (
-    <Canvas {...props}>
+    <Canvas
+      camera={{
+        position: [0, 0, 10]
+      }}
+      {...props}
+    >
       <Scene>
-        <mesh position={[1, 1, 0]}>
-          <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
-          <meshPhysicalMaterial attach="material" color={"blue"} />
-        </mesh>
+        <group>
+          <Particles count={1000} />
+        </group>
       </Scene>
     </Canvas>
   )

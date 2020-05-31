@@ -12,8 +12,7 @@ type Props = PageProps<{}, { locale: string }>
 
 const useStyles = makeStyles((theme: Theme) => ({
   main: {
-    padding: theme.spacing(2),
-    zIndex: 1100
+    padding: theme.spacing(2)
   }
 }))
 
@@ -32,15 +31,21 @@ export const Layout: FC<Props> = ({ children, pageContext: { locale } }) => {
       >
         <Background />
       </div>
-      <ThemeProvider>
-        <LocaleContext.Provider value={locale}>
-          <div style={{ position: "absolute", width: "100vw" }}>
+      <div
+        style={{
+          pointerEvents: "stroke",
+          position: "absolute",
+          width: "100vw"
+        }}
+      >
+        <ThemeProvider>
+          <LocaleContext.Provider value={locale}>
             <Header />
             <main className={main}>{children}</main>
             <Footer />
-          </div>
-        </LocaleContext.Provider>
-      </ThemeProvider>
+          </LocaleContext.Provider>
+        </ThemeProvider>
+      </div>
     </>
   )
 }
