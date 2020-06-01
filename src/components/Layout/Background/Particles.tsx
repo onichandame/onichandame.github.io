@@ -12,7 +12,7 @@ type Props = {
 
 const center = new Vector3(0, 0, -5)
 const radius = 10
-const width = 10
+const width = 15
 const speed = (0.1 * Math.PI) / 180
 
 export const Particles: FC<Props> = ({ count }) => {
