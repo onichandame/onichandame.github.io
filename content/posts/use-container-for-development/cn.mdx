@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2019-05-28
+date: 2019-06-01
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -44,6 +44,31 @@ import {LocalizedLink} from '../../../src/i18n'
 ## Podman
 
 Podman是一个无daemon的容器运行环境。为绕过SELinux对硬盘读写的限制，需要使用`--security-opt label=disable`选项。
+
+Podman和Docker对容器有不同的定义。Podman不会为每个容器分配一个新IP，因为分配新IP需要root权限。为联通两个非root容器，需要使用一个pod将两个容器包裹起来。[官方文档][pod]提供创造容器和pod的具体方法。[官方文档][pod-com]提供同一pod内不同容器的通信方法。但是，新建pod需要从k8s.gcr.io拉取镜像，在国内由于GFW这不可能。因此必须用一个国内镜像。
+
+`man container-registries.conf`告诉我镜像的配置在`/etc/containers/registries.conf`文件中。这个路径在不同的发行版上可能不一样。在CentOS 8提供的默认配置中使用的是v1版本。但是镜像配置只在v2版本中可用，因此必须将配置转换为v2版本：
+
+```text
+unqualified-search-registries = ['docker.io', 'registry.access.redhat.com', 'registry.fedoraproject.org', 'registry.centos.org']
+
+[[registry]]
+prefix="k8s.gcr.io"
+location="k8s.gcr.io"
+
+[[registry.mirror]]
+location="registry.cn-hangzhou.aliyuncs.com/google_containers"
+```
+
+感谢[此问题][pod-mirror]
+
+在删除旧配置并添加新配置后，可以用阿里云镜像创造pod。
+
+在pod内的容器无法直接与host通过port mapping通信，因此必须在创建pod时就将port mapping设置好。
+
+```bash
+podman pod create -p 30000:3000
+```
 
 ## 缩减镜像大小
 
@@ -113,3 +138,6 @@ files目录下包含所有必须的配置文件，如bashrc和vimrc等。
 [wsl]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
 [winsock]: https://github.com/microsoft/WSL/issues/4177
 [hyperv]: https://answers.microsoft.com/en-us/windows/forum/all/resolving-wslregisterdistribution-error-0x80370102/412cf42b-1424-444c-bb95-4aa2b5fe5eaf
+[pod]: https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/
+[pod-com]: https://www.redhat.com/sysadmin/container-networking-podman
+[pod-mirror]: https://github.com/containers/libpod/issues/5764

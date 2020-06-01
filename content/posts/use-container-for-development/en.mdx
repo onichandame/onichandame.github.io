@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-05-28
+date: 2019-06-01
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -44,6 +44,31 @@ Basic knowledge of Linux configuration and commands are preassumed.
 ## Podman
 
 Podman is a daemonless container runtime. It requires `--security-opt label=disable` to bypass SELinux for sharing files with the host.
+
+Podman treats containers differently than Docker. Each plain container created by podman is not allocateda new IP as it would require root permission. To communicate 2 rootless containers, a pod is requried to contain the 2 containers. The [official guide][pod] tells how to setup pods and containers within pods. [This guide][pod-com] tells how to setup communication between containers in the same pod. However, the creation of pod requires pulling image from k8s.gcr.io, which is blocked by GFW. Thus a mirror registry must be used.
+
+According to `man container-registries.conf`, the system-wide configuration is `/etc/containers/registries.conf`. The location may differ on different platforms, check it carefully. In the default configuration shipped with CentOS 8, the format v1 is used. Mirrors are only available in format v2, therefore the configuration needs to be changed to v2:
+
+```text
+unqualified-search-registries = ['docker.io', 'registry.access.redhat.com', 'registry.fedoraproject.org', 'registry.centos.org']
+
+[[registry]]
+prefix="k8s.gcr.io"
+location="k8s.gcr.io"
+
+[[registry.mirror]]
+location="registry.cn-hangzhou.aliyuncs.com/google_containers"
+```
+
+Thanks to [this issue][pod-mirror]
+
+After removing the old configuration and adding the above configuration, an AliCloud mirror is used. Now the pod can be created.
+
+The containers inside pods cannot communicate directly with host, namely port mapping. The port mapping needs to be set on the creation of the pods.
+
+```bash
+podman pod create -p 30000:3000
+```
 
 ## Reduce Image Size
 
@@ -114,3 +139,6 @@ The files folder contains all the configuration files like vimrc and bashrc.
 [wsl]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
 [winsock]: https://github.com/microsoft/WSL/issues/4177
 [hyperv]: https://answers.microsoft.com/en-us/windows/forum/all/resolving-wslregisterdistribution-error-0x80370102/412cf42b-1424-444c-bb95-4aa2b5fe5eaf
+[pod]: https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/
+[pod-com]: https://www.redhat.com/sysadmin/container-networking-podman
+[pod-mirror]: https://github.com/containers/libpod/issues/5764
