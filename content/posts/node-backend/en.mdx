@@ -4,6 +4,20 @@ author: "onichandame"
 date: 2019-06-02
 ---
 
+<!-- vim-markdown-toc GFM -->
+
+* [POST](#post)
+  * [Formidable](#formidable)
+  * [Body Parser](#body-parser)
+    * [URL Encoded](#url-encoded)
+    * [JSON](#json)
+* [Authentication](#authentication)
+* [Common Features](#common-features)
+* [Self Contained](#self-contained)
+* [Centralized](#centralized)
+
+<!-- vim-markdown-toc -->
+
 Here I record the issues found during the development of backend services running in Node.js.
 
 # POST
@@ -35,3 +49,29 @@ The client must set header `Content-Type` to `application/json` for Body Parser 
 ```typescript
 server.use(bodyParser.json())
 ```
+
+# Authentication
+
+There are vaguely 2 approaches to provide authentication service. Both share some common features.
+
+# Common Features
+
+No matter which approach is chosen, the following features must be implemented:
+
+1. user registration, login, logout and login status check
+2. administration actions, including invitation, role playing, user deletion, user addition, user reset etc.
+3. persistent storage for users' credentials and session token
+
+# Self Contained
+
+For small-scale systems where sub-systems are independent of each other, authentication can be handled by each sub-system individually.
+
+The commonly used stack for this approach is:
+
+* MongoDB
+* Passport.js
+* Express.js
+
+# Centralized
+
+For deeply coupled sub-systems, they need to share a single central authentication service
