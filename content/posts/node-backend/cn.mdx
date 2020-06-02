@@ -1,0 +1,37 @@
+---
+title: "Node.js后端"
+author: "onichandame"
+date: 2019-06-02
+---
+
+本文记录我在开发基于Node.js的后端服务过程中遇到的问题。
+
+# POST
+
+通用的处理POST请求的库有2个：Formidable和Body-Parser.
+
+## Formidable
+
+这个库可以处理field values和files。但用的人较少。
+
+## Body Parser
+
+这个库只能处理field values。它支持2种数据结构：url encoded和json。
+
+```typescript
+import bodyParser from 'body-parser'
+```
+
+### URL Encoded
+
+```typescript
+server.use(bodyParser.urlencoded({ extended: true }))
+```
+
+### JSON
+
+客户端必须将header `Content-Type`设成`application/json`，否则Body Parser无法理解请求。
+
+```typescript
+server.use(bodyParser.json())
+```

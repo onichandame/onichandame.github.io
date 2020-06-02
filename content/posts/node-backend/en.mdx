@@ -1,0 +1,37 @@
+---
+title: "Node.js Backend"
+author: "onichandame"
+date: 2019-06-02
+---
+
+Here I record the issues found during the development of backend services running in Node.js.
+
+# POST
+
+There are 2 commonly used libraries to handle POST request: Formidable and Body-Parser.
+
+## Formidable
+
+This tool can handle both field values and files. It is less popular than it's counterpart though.
+
+## Body Parser
+
+This tool can handle only field values. There are 2 formats: url encoded and json.
+
+```typescript
+import bodyParser from 'body-parser'
+```
+
+### URL Encoded
+
+```typescript
+server.use(bodyParser.urlencoded({ extended: true }))
+```
+
+### JSON
+
+The client must set header `Content-Type` to `application/json` for Body Parser to understand the request.
+
+```typescript
+server.use(bodyParser.json())
+```
