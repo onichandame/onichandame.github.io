@@ -1,0 +1,11 @@
+---
+title: "Develop with NATS"
+author: "onichandame"
+date: 2019-06-06
+---
+
+When developing backend services, it is usually a good idea to decouple the services by communicating through a messaging layer. [NATS][nats] is a cross-language messaging layer. It officially supports Golang, Typescript, Java, etc. The biggest difference compared to the traditional messaging service such as Kafka is that NATS delivers a *at-most-once* strategy, meaning each message will be delivered to the subscribers at most once. The delivery is allowed to fail and the failure is expected to be handled by the applications.
+
+The *at-most-once* design
+
+[nats]: https://nats.io/
