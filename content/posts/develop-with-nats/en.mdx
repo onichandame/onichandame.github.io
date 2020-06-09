@@ -8,6 +8,9 @@ date: 2019-06-06
 
 * [Development Setup](#development-setup)
   * [Mock NATS Client](#mock-nats-client)
+  * [Start NATS Server](#start-nats-server)
+  * [Github Action](#github-action)
+* [Authorization](#authorization)
 
 <!-- vim-markdown-toc -->
 
@@ -29,6 +32,19 @@ Unit test is a necessity to build a robust service. A common practice is to mock
 
 Therefore I made [my own fork][mock] published as `@onichandame/mock-nats-client`. My fork is written in TypeScript and utilizes the original typing of NATS Client. As a result, the mocked functions have the same signatures as the original NATS Client.
 
+## Start NATS Server
+
+There are times when multiple clients instances must be able to communicate during testing. In which case a mocked client does not satisfy the demands so a real NATS server must be started. [This lib][nats-server] was created for this purpose. However, it does not run on Github Action or Windows.
+
+## Github Action
+
+To start a NATS server/cluster during testing on Github Action, I created [this action][nats-action] for bootstrapping NATS server/cluster in actions, and [this action][nats-client] to test if the server/cluster is up and running.
+
+# Authorization
+
 [nats]: https://nats.io/
 [orig-mock]: https://github.com/FrostDigital/mock-nats-client
 [mock]: https://github.com/onichandame/mock-nats-client
+[nats-server]: https://github.com/onichandame/nats-server
+[nats-action]: https://github.com/onichandame/nats-action/
+[nats-client]: https://github.com/onichandame/nats-client-action/
