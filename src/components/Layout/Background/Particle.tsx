@@ -7,11 +7,13 @@ type Props = ComponentProps<"mesh">
 
 export const Particle: FC<Props> = props => {
   const particle = useRef<Mesh>(null)
+  const speed = 0.1 + 0.1 * Math.random()
+  const animate = () => {
+    const model = particle.current
+    model.position.y += speed
+  }
   useFrame(() => {
-    if (particle && particle.current) {
-      const model = particle.current
-      model.position.y += 0.1
-    }
+    animate()
   })
   return (
     <mesh ref={particle} {...props}>
