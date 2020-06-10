@@ -16,7 +16,7 @@ export const Background: FC<Props> = props => {
     >
       <Scene>
         <group>
-          <Particles count={10} />
+          <Particles count={20} />
         </group>
       </Scene>
     </Canvas>
