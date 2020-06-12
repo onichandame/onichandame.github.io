@@ -1,7 +1,7 @@
 ---
 title: "EPICS Deployment"
 author: "onichandame"
-date: 2019-05-08
+date: 2019-06-12
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -10,6 +10,7 @@ import {LocalizedLink} from '../../../src/i18n'
 
 * [System Architecture](#system-architecture)
 * [Challenges](#challenges)
+  * [Base Image](#base-image)
   * [Connection between Different Hosts](#connection-between-different-hosts)
 
 <!-- vim-markdown-toc -->
@@ -26,6 +27,16 @@ The details of the architecture are not covered here. Broadly speaking, the prox
 
 This section records all major challenges I have met. Some are trivial but I was not smart enough to find a solution immediately.
 
+## Base Image
+
+The best base image a container is based on is probably Alpine. However, there are issues combining Alpine and EPICS.
+
+The most apparent issue is the libc. Alpine is shipped with musl-libc but EPICS is based on glibc. Although there is a [glibc compiled for Alpine][alpine-glibc], the next issue is not fixable.
+
+EPICS uses libstdc++. libstdc++ on Alpine is based on musl-libc. EPICS also uses glibc for Alpine. At the end of day, libstdc++ is tricked to believe that it is in glibc environment, which is not true. So a link/call from EPICS to libstdc++ to glibc will fail. The only fix to this issue is to base libstdc++ on glibc, which has not been done by anyone yet. If I were to do it, I would rather base EPICS on musl-libc as it is more light-weight and better adhere to the ecosystem of Alpine.
+
+As a result, the best base image for now is CentOS 7/8.
+
 ## Connection between Different Hosts
 
 The connection between CA client and IOC server is the most anti-intuitive part for me. EPICS provides a convenient technology "UDP broadcasting", which helps establish connection when both parties have no knowledge of the IP address of each other.
@@ -40,3 +51,5 @@ export EPICS_CA_ADDR_LIST=192.168.1.100
 ```
 
 However, it is generally a better practice to minimize the necessary configurations. A better solution here is putting the CA client in the subnet where IOC servers are found and no other subnets. In my architecture, it means that the web services and IOCs, as well as the proxy, are in the same subnet. This is achievable when the number of IOCs is relatively small. When there is large number of IOCs, they must be divided into different subnets for better management. In that case, a workaround can be made by introducing another layer of proxy between web services and the EPICS proxy, so that the EPICS proxy can stay with 1 IP.
+
+[alpine-glibc]: https://github.com/sgerrand/alpine-pkg-glibc
