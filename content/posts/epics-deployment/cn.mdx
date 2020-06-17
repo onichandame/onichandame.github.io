@@ -10,6 +10,7 @@ import {LocalizedLink} from '../../../src/i18n'
 
 * [系统架构](#系统架构)
 * [挑战](#挑战)
+  * [基础镜像](#基础镜像)
   * [不同宿主间的通信](#不同宿主间的通信)
 
 <!-- vim-markdown-toc -->
@@ -26,6 +27,16 @@ import {LocalizedLink} from '../../../src/i18n'
 
 本节记录我遇到的所有挑战，有些很简单但却卡了我一段时间。
 
+## 基础镜像
+
+最优的容器基础镜像是Alpine。但是将Alpine和EPICS整合起来会导致一些问题。
+
+最先出现的问题是libc。Alpine自带的musl-libc和EPICS基于的glibc不一样。虽然有个[为Alpine编译的glibc][alpine-glibc]，下一个问题还是无解。
+
+EPICS使用libstdc++，Alpine上的libstdc++基于musl-libc。EPICS还使用Alpine上的glibc。最终libstdc++会错误地认为它处于glibc环境中。因此从EPICS到libstdc++到glibc的link或call会失败。唯一的解决方法是使用基于glibc的libstdc++。但还没人做过这个工作。如果让我去解决这个问题，我倾向与用musl-libc重写EPICS，因为这样更轻量化且与Alpine的理念更吻合。
+
+综上所述，现阶段最优的基础镜像是CentOS 7/8。
+
 ## 不同宿主间的通信
 
 在CA客户端和IOC服务器间的通信对我来说是最反直觉的部分。EPICS采用"UDP broadcasting"技术可以在事先不知道对方IP的情况下建立通信。
@@ -40,3 +51,5 @@ export EPICS_CA_ADDR_LIST=192.168.1.100
 ```
 
 但是，更好的方案通常会缩减必要的配置。在此处，更好的方案时让CA客户端和IOC服务器在唯一子网中。在我的架构中，这意味着所有web服务、IOC和Proxy都必须在同一内网。这在IOC的数量较小时可行，但在其数量较大时，就必须划分不同的子网方便管理。因此，就需要引入另一个中间层沟通Proxy和web服务。此时Proxy可以仅拥有一个IP。
+
+[alpine-glibc]: https://github.com/sgerrand/alpine-pkg-glibc
