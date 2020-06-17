@@ -1,7 +1,7 @@
 ---
 title: "Node.js Backend"
 author: "onichandame"
-date: 2019-06-02
+date: 2019-06-17
 ---
 
 <!-- vim-markdown-toc GFM -->
@@ -11,10 +11,8 @@ date: 2019-06-02
   * [Body Parser](#body-parser)
     * [URL Encoded](#url-encoded)
     * [JSON](#json)
-* [Authentication](#authentication)
-* [Common Features](#common-features)
-* [Self Contained](#self-contained)
-* [Centralized](#centralized)
+* [Authentication & Authorization](#authentication--authorization)
+  * [Auth of End User](#auth-of-end-user)
 
 <!-- vim-markdown-toc -->
 
@@ -50,28 +48,20 @@ The client must set header `Content-Type` to `application/json` for Body Parser 
 server.use(bodyParser.json())
 ```
 
-# Authentication
+# Authentication & Authorization
 
-There are vaguely 2 approaches to provide authentication service. Both share some common features.
+The auth(authentication and authorization) is a 2-fold problem. It includes the auth between services and the auth between the end user and the gateway service. The gateway service is the one that is exposed to the end users.
 
-# Common Features
+## Auth of End User
 
-No matter which approach is chosen, the following features must be implemented:
+There are several keystones to consider.
 
-1. user registration, login, logout and login status check
-2. administration actions, including invitation, role playing, user deletion, user addition, user reset etc.
-3. persistent storage for users' credentials and session token
+* The auth data, permanent(credentials) or temporary(session) must be horizontally scalable. To be specific, a user registered with or logged in a gateway service should not have to do the registration/login all over again when using another gateway instance of the same kind.
+* The different services in the same workflow or serving closely related customers should share the same auth pattern, so that every user in the same workflow is unique allowing business logic and workflow to change flexibly without conflict.
+* The dicision of registration pattern should be set once for all. For internal services, invitation pattern is higher on the list. In this pattern the permission pattern can be simplfied to focus on the business workflow as the security can rely on the real world relationships. For open registration model, the assumption that the end user is an experienced hacker infiltrating our service must be made.
 
-# Self Contained
+Some useful technologies.
 
-For small-scale systems where sub-systems are independent of each other, authentication can be handled by each sub-system individually.
-
-The commonly used stack for this approach is:
-
-* MongoDB
 * Passport.js
+* MongoDB/Mongoose
 * Express.js
-
-# Centralized
-
-For deeply coupled sub-systems, they need to share a single central authentication service
