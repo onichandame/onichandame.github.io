@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-06-01
+date: 2019-07-19
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -11,12 +11,16 @@ import {LocalizedLink} from '../../../src/i18n'
 * [Thoughts](#thoughts)
 * [Challenges](#challenges)
   * [Podman](#podman)
+  * [Keep Container Running](#keep-container-running)
   * [Reduce Image Size](#reduce-image-size)
   * [NOFILE Limit](#nofile-limit)
   * [UTF-8 Encoding](#utf-8-encoding)
   * [Windows 10](#windows-10)
     * [Docker Engine](#docker-engine)
     * [HyperV](#hyperv)
+  * [Kubernetes](#kubernetes)
+    * [Cluster Setup](#cluster-setup)
+    * [Persistent Volume](#persistent-volume)
 * [Implementation](#implementation)
 
 <!-- vim-markdown-toc -->
@@ -70,13 +74,28 @@ The containers inside pods cannot communicate directly with host, namely port ma
 podman pod create -p 30000:3000
 ```
 
+## Keep Container Running
+
+A container will exit as soon as the PID 1 process exits. This is not a problem for stateless container run by `docker run -it --rm`. But on kubernetes, all containers has to be run in background and use `kubectl exec -it` to enter the interactive shell.
+
+To run a container in background indefinitely, several options are available:
+
+1. `tail -f /dev/null`
+2. `bash`
+
+The first option has a problem that it does not respond correctly to SIGKILL/SIGINT. Therefore the pod will be stuck in the `Terminating` stage forever.
+
+The second option requires a pseudo-tty session to keep the bash from exiting.
+
+To conclude, the `tail` approach has no elegant workaround for its problem, whereas the `bash` approach's problem can be fixed by simply providing a pseudo-tty session.
+
 ## Reduce Image Size
 
-As development environment requires a lot of tools to be installed, the image is inevitably bloated. My image weights 2.7GB. Therefore it is very helpful to reduce the image size.
+As development environment requires a lot of tools to be installed, the image is inevitably bloated. My image based on CentOS weights more than 3GB. Therefore it is necessary to reduce the image size.
 
-The best way to reduce image size is rebasing the image to alpine and musl-libc. However, one of my project requries glibc and CentOS. I cannot shift my development to alpine.
+The best way to reduce image size is rebasing the image to alpine or busybox. However, one of my project requries glibc and CentOS. I cannot shift my development to alpine.
 
-Another approach is to merge the steps. This approach cannot reduce the image size by a lot, but it has another benefit that clarifies the setup process.
+Another approach is to merge the steps. This approach cannot reduce the image size by a lot, but it has another benefit that programmatically run the setup process using `bash` or `sh`.
 
 To reduce the number of steps as much as possible, I put all setup commands to a bash script. So the Dockerfile only contains 1 line running the setup command.
 
@@ -119,6 +138,32 @@ WSL 2 at this moment suffers from a fatal bug. If you try to start a Linux distr
 No matter you choose HyperV or WSL 2 as the engine, HyperV service must be enabled. However, MicroSoft made a very bad default behaviour that disables virtualization in BIOS once the HyperV related services are enabled. Thus it is required to go to BIOS and enable hardware virtualization after enabling HyperV every time.
 
 Thanks to [this issue][hyperv]
+
+## Kubernetes
+
+My production environment is kubernetes, local or cloud. Therefore it would be more convenient for me to setup a development environment that is consistent with the production environment.
+
+To run development environment in kubernetes, things are different.
+
+### Cluster Setup
+
+Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is *minikube*.
+
+Minikube runs a kubernetes cluster in a virtual machine. To make sure the consistency across different OS, virtualbox is the best VM driver in this case.
+
+Another problem is that the internal image of kubernetes are hosted by Google, which is not accessible in China. Minikube allows to use a mirror registry to bypass this barrier. In short, the final command I use is:
+
+```bash
+minikube start --driver=virtualbox --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com --iso-url=https://kubernetes.oss-cn-hangzhou.aliyuncs.com/minikube/iso/minikube-v1.11.0.iso --memory=12G --cpus=3
+```
+
+The command above is for minikube ver. 1.11.0. For other versions change the iso version to match your choice.
+
+### Persistent Volume
+
+Another tricky setup is to share files between the container and the host. This is difficult as the containers run in virtual machines.
+
+The good news is that minikube automatically maps the `$HOME` directory to the virtual machine when using virtualbox as the VM driver. This allows us to create local storage and persistent volume that connects the virtual machine's filesystem to the cluster. The example configuration can be seen in [this file](https://github.com/onichandame/docker-dev/blob/master/kube/dev.yaml)
 
 # Implementation
 
