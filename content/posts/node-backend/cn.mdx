@@ -1,8 +1,21 @@
 ---
 title: "Node.js后端"
 author: "onichandame"
-date: 2019-06-17
+date: 2019-08-05
 ---
+
+<!-- vim-markdown-toc GFM -->
+
+* [POST](#post)
+  * [Formidable](#formidable)
+  * [Body Parser](#body-parser)
+    * [URL Encoded](#url-encoded)
+    * [JSON](#json)
+* [GFW](#gfw)
+* [身份&授权](#身份授权)
+  * [用户安全](#用户安全)
+
+<!-- vim-markdown-toc -->
 
 本文记录我在开发基于Node.js的后端服务过程中遇到的问题。
 
@@ -35,6 +48,10 @@ server.use(bodyParser.urlencoded({ extended: true }))
 ```typescript
 server.use(bodyParser.json())
 ```
+
+# GFW
+
+由于GFW的存在,中国用户经常无法访问npm registry。为了解决这个问题，阿里的开发者们提供了一个镜像registry，并每十分钟与官方registry同步一次。[这个文档](https://developer.aliyun.com/mirror/NPM?from=tnpm)提供使用这个镜像registry的方法。
 
 # 身份&授权
 

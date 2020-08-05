@@ -143,7 +143,7 @@ HyperV就是一个传统的VM hypervisor，Docker用它建立一个跑docker后�
 
 安装kubernetes集群并不像Docker Desktop那样简单。官方推荐使用*minikube*配置开发环境。
 
-Minikube在虚拟机中配置一个集群。考虑到不同OS上的通用性，VirtualBox是最好的选择。
+Minikube在虚拟机中配置一个集群。考虑到不同OS上的通用性，VirtualBox是最好的选择。但当宿主机无法支持虚拟机时，可以用none driver。
 
 另一个问题是很多内部的镜像都在Google自己的平台上，国内无法直接连接。Minikube允许使用镜像站点绕过这个限制。简单来说，我最终使用如下命令：
 

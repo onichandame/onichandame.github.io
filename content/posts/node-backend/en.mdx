@@ -1,7 +1,7 @@
 ---
 title: "Node.js Backend"
 author: "onichandame"
-date: 2019-06-17
+date: 2019-08-05
 ---
 
 <!-- vim-markdown-toc GFM -->
@@ -11,6 +11,7 @@ date: 2019-06-17
   * [Body Parser](#body-parser)
     * [URL Encoded](#url-encoded)
     * [JSON](#json)
+* [GFW](#gfw)
 * [Authentication & Authorization](#authentication--authorization)
   * [Auth of End User](#auth-of-end-user)
 
@@ -47,6 +48,10 @@ The client must set header `Content-Type` to `application/json` for Body Parser 
 ```typescript
 server.use(bodyParser.json())
 ```
+
+# GFW
+
+For users in China, npm registry is often unavailable due to censorship. To solve this problem, the developers at Alibaba made a mirror registry which is synced with the official registry every 10 minutes. [This docs](https://developer.aliyun.com/mirror/NPM?from=tnpm) tells how to use this registry.
 
 # Authentication & Authorization
 

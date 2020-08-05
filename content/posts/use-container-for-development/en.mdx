@@ -143,7 +143,7 @@ To run development environment in kubernetes, things are different.
 
 Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is *minikube*.
 
-Minikube runs a kubernetes cluster in a virtual machine. To make sure the consistency across different OS, virtualbox is the best VM driver in this case.
+Minikube runs a kubernetes cluster in a virtual machine. To make sure the consistency across different OS, virtualbox is the best VM driver in this case. But if the host machine is too old to run virtual machines, the none driver comes to rescue.
 
 Another problem is that the internal image of kubernetes are hosted by Google, which is not accessible in China. Minikube allows to use a mirror registry to bypass this barrier. In short, the final command I use is:
 
