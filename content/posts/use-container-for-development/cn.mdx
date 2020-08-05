@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2019-07-19
+date: 2019-08-05
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -91,13 +91,7 @@ podman pod create -p 30000:3000
 
 ## 缩减镜像大小
 
-因为开发环境需要很多工具，镜像的大小不可避免地会失控。我的基于CentOS的镜像有超过3GB，因此需要尽量缩减。
-
-最优的办法是使用alpine或busybox重构镜像。但是我负责的一个项目需要glibc和CentOS，因此我不能采用alpine。
-
-另一个可行的办法是减少中间镜像。这个方法不能显著减少镜像大小，但它还有助于使用`bash`或`sh`程序化地配置环境。
-
-为最大限度减少中间步骤，我将所有配置命令都放在一个bash脚本中，因此Dockerfile只需要运行一个中间命令即可。
+最终镜像的大小主要取决于Linux distro的选择。传统的distro如CentOS没有针对容器化做优化，因此基于它的镜像的大小都很容易失控。我选择Alpine 3。基于Alpine 3的镜像大概在1.8 GB左右，但基于CentOS的版本超过了3 GB。
 
 ## NOFILE限制
 

@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-07-19
+date: 2019-08-05
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -91,13 +91,7 @@ To conclude, the `tail` approach has no elegant workaround for its problem, wher
 
 ## Reduce Image Size
 
-As development environment requires a lot of tools to be installed, the image is inevitably bloated. My image based on CentOS weights more than 3GB. Therefore it is necessary to reduce the image size.
-
-The best way to reduce image size is rebasing the image to alpine or busybox. However, one of my project requries glibc and CentOS. I cannot shift my development to alpine.
-
-Another approach is to merge the steps. This approach cannot reduce the image size by a lot, but it has another benefit that programmatically run the setup process using `bash` or `sh`.
-
-To reduce the number of steps as much as possible, I put all setup commands to a bash script. So the Dockerfile only contains 1 line running the setup command.
+The final image size mainly depends on the choice of the Linux distro. The traditional distros like CentOS is not optimized for containerization so the images based on it are inevitably bloated. My choice is Alpine 3. The image based on Alpine 3 weighs around 1.8 GB whereas the CentOS version weighs more than 3 GB.
 
 ## NOFILE Limit
 
