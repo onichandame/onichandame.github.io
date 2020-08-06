@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-08-05
+date: 2019-08-06
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -19,7 +19,10 @@ import {LocalizedLink} from '../../../src/i18n'
     * [Docker Engine](#docker-engine)
     * [HyperV](#hyperv)
   * [Kubernetes](#kubernetes)
-    * [Cluster Setup](#cluster-setup)
+    * [Setup](#setup)
+      * [Virtual Machine](#virtual-machine)
+      * [Container](#container)
+      * [Bare Metal](#bare-metal)
     * [Persistent Volume](#persistent-volume)
 * [Implementation](#implementation)
 
@@ -139,13 +142,17 @@ My production environment is kubernetes, local or cloud. Therefore it would be m
 
 To run development environment in kubernetes, things are different.
 
-### Cluster Setup
+### Setup
 
 Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is *minikube*.
 
-Minikube runs a kubernetes cluster in a virtual machine. To make sure the consistency across different OS, virtualbox is the best VM driver in this case. But if the host machine is too old to run virtual machines, the none driver comes to rescue.
+*minikube* provides many different drivers to setup a cluster, all boils down to 3 categories: virtual machine, container and bare metal.
 
-Another problem is that the internal image of kubernetes are hosted by Google, which is not accessible in China. Minikube allows to use a mirror registry to bypass this barrier. In short, the final command I use is:
+#### Virtual Machine
+
+To make sure the consistency across different OS, virtualbox is the best VM driver as it works on all major OS.
+
+To run a virtualbox backed cluster in China, mirror sites should be used as the official google services are blocked by the censorship.
 
 ```bash
 minikube start --driver=virtualbox --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com --iso-url=https://kubernetes.oss-cn-hangzhou.aliyuncs.com/minikube/iso/minikube-v1.11.0.iso --memory=12G --cpus=3
@@ -153,11 +160,31 @@ minikube start --driver=virtualbox --image-repository=registry.cn-hangzhou.aliyu
 
 The command above is for minikube ver. 1.11.0. For other versions change the iso version to match your choice.
 
+#### Container
+
+Another driver that stays consistent across different OS is docker. Again, in China some tweaks are necessary:
+
+```bash
+minikube start --registry-mirror=https://registry.docker-cn.com --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --vm-driver=docker --alsologtostderr -v=8 --base-image registry.cn-hangzhou.aliyuncs.com/google_containers/kicbase:v0.0.10
+```
+
+The cluster uses docker inside a container to orchestrate the resources. In case the docker hub is unavailable, the docker should be configured to use a proxy for pulling images. [This blog](https://blog.csdn.net/activity110/article/details/85241450) provides an easy way to tunnel the docker daemon through a socks proxy.
+
+#### Bare Metal
+
+This setup is not recommended as it only works on Linux and may cause data loss on the host machine as it runs all k8s components directly on the host. If the risks are tolerable, the command below may be used to start a bare metal cluster in China:
+
+```bash
+sudo minikube start --driver=none --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com
+```
+
 ### Persistent Volume
 
-Another tricky setup is to share files between the container and the host. This is difficult as the containers run in virtual machines.
+Another challenge is how to store the files persistently. The virtual machines or containers can be killed and removed at any time, so the persistent files have to reside in the host filesystem. *minikube* provides a mounting utility that can mount any directory on the host to the virtual machine or container.
 
-The good news is that minikube automatically maps the `$HOME` directory to the virtual machine when using virtualbox as the VM driver. This allows us to create local storage and persistent volume that connects the virtual machine's filesystem to the cluster. The example configuration can be seen in [this file](https://github.com/onichandame/docker-dev/blob/master/kube/dev.yaml)
+```bash
+minikube mount /home/user/files:/files
+```
 
 # Implementation
 

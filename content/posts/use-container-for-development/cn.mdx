@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2019-08-05
+date: 2019-08-06
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -20,6 +20,9 @@ import {LocalizedLink} from '../../../src/i18n'
     * [HyperV](#hyperv)
   * [Kubernetes](#kubernetes)
     * [集群搭建](#集群搭建)
+      * [虚拟机](#虚拟机)
+      * [容器PID](#容器pid)
+      * [裸机](#裸机)
     * [永久存储](#永久存储)
 * [实现](#实现)
 
@@ -143,15 +146,37 @@ HyperV就是一个传统的VM hypervisor，Docker用它建立一个跑docker后�
 
 安装kubernetes集群并不像Docker Desktop那样简单。官方推荐使用*minikube*配置开发环境。
 
-Minikube在虚拟机中配置一个集群。考虑到不同OS上的通用性，VirtualBox是最好的选择。但当宿主机无法支持虚拟机时，可以用none driver。
+*minikube*提供很多不同的驱动用以建立集群。这些驱动都可归于3类：虚拟机、容器和裸机。
 
-另一个问题是很多内部的镜像都在Google自己的平台上，国内无法直接连接。Minikube允许使用镜像站点绕过这个限制。简单来说，我最终使用如下命令：
+#### 虚拟机
+
+为在不同的OS上保持统一的体验，最优的虚拟机驱动是virtualbox，因为它在所有主流的OS上都能用。
+
+在中国，Google官方的服务不可用，因此必须配置镜像站点。
 
 ```bash
 +minikube start --driver=virtualbox --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com --iso-url=https://kubernetes.oss-cn-hangzhou.aliyuncs.com/minikube/iso/minikube-v1.11.0.iso --memory=12G --cpus=3
 ```
 
 上面的命令对应的minikube版本是1.11.0。如使用其他版本，更改iso的版本即可。
+
+#### 容器PID
+
+另一个全平台通用的驱动是docker。还是一样，在中国使用必须采取一些配置：
+
+```bash
+minikube start --registry-mirror=https://registry.docker-cn.com --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --vm-driver=docker --alsologtostderr -v=8 --base-image registry.cn-hangzhou.aliyuncs.com/google_containers/kicbase:v0.0.10
+```
+
+这个集群由一个容器中的docker管理。当docker hub不可用时，必须使用代理拉取镜像。[这个博客](https://blog.csdn.net/activity110/article/details/85241450)提供一个简单的方法。
+
+#### 裸机
+
+这个配置只能在Linux上使用，而且可能造成宿主机的数据损失，因此不推荐采用。如果这些风险可以接受，可以用以下命令在中国启动一个裸机集群：
+
+```bash
+sudo minikube start --driver=none --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com
+```
 
 ### 永久存储
 
