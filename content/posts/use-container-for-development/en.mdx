@@ -186,6 +186,8 @@ Another challenge is how to store the files persistently. The virtual machines o
 minikube mount /home/user/files:/files
 ```
 
+Note there is one caveat of the mounting utility. Creating symlinks will fail. Check [this issue](https://github.com/kubernetes/minikube/issues/4621) for progress.
+
 # Implementation
 
 The structure of the source project is as follows:

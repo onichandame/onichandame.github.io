@@ -184,6 +184,8 @@ sudo minikube start --driver=none --image-repository=registry.cn-hangzhou.aliyun
 
 有个好消息是，当使用VirtualBox作为VM驱动时，minikube自动将`$HOME`目录连接到虚拟机中。这让连接虚拟机的文件系统和集群成为可能。kubernetes提供local storage和persistent volume达成这个目的。我做了一个[案例配置](https://github.com/onichandame/docker-dev/blob/master/kube/dev.yaml)。
 
+注意这个功能有一个缺陷：无法成功创建软链接。可以在[这个issue](https://github.com/kubernetes/minikube/issues/4621)中追踪进度。
+
 # 实现
 
 源项目的结构如下所示：
