@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2019-08-06
+date: 2019-08-14
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -144,47 +144,19 @@ HyperV就是一个传统的VM hypervisor，Docker用它建立一个跑docker后�
 
 ### 集群搭建
 
-安装kubernetes集群并不像Docker Desktop那样简单。官方推荐使用*minikube*配置开发环境。
+安装kubernetes集群并不像Docker Desktop那样简单。官方推荐使用[minikube][minikube]配置开发环境。但我选择用[kind][kind]，因为它对跨平台的支持比[minikube][minikube]更好，更统一。
 
-*minikube*提供很多不同的驱动用以建立集群。这些驱动都可归于3类：虚拟机、容器和裸机。
+[kind][kind]提供一个可执行程序用以管理集群，可以根据官方文档的指示进行安装。
 
-#### 虚拟机
+身处中国大陆，如gcr registry之类的谷歌服务都不可用。因此必须使用镜像registry来绕过限制。[kind][kind]可以从yaml文件中获取设置，就像k8s从yaml文件获取deployment配置一样。为此，我创建了[一个配置文件](https://github.com/onichandame/docker-dev/blob/master/kube/cluster.yaml)。
 
-为在不同的OS上保持统一的体验，最优的虚拟机驱动是virtualbox，因为它在所有主流的OS上都能用。
+有一个需要注意的点是`nodes.role.extraMounts`负责将宿主机上的一个路径映射至worker node上。如果不需要persistent storage可以将其删除。
 
-在中国，Google官方的服务不可用，因此必须配置镜像站点。
-
-```bash
-+minikube start --driver=virtualbox --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com --iso-url=https://kubernetes.oss-cn-hangzhou.aliyuncs.com/minikube/iso/minikube-v1.11.0.iso --memory=12G --cpus=3
-```
-
-上面的命令对应的minikube版本是1.11.0。如使用其他版本，更改iso的版本即可。
-
-#### 容器PID
-
-另一个全平台通用的驱动是docker。还是一样，在中国使用必须采取一些配置：
+将配置文件保存在cluster.yaml内，就可以用以下命令启动集群：
 
 ```bash
-minikube start --registry-mirror=https://registry.docker-cn.com --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --vm-driver=docker --alsologtostderr -v=8 --base-image registry.cn-hangzhou.aliyuncs.com/google_containers/kicbase:v0.0.10
+kind create cluster --config git/kube/cluster.yaml
 ```
-
-这个集群由一个容器中的docker管理。当docker hub不可用时，必须使用代理拉取镜像。[这个博客](https://blog.csdn.net/activity110/article/details/85241450)提供一个简单的方法。
-
-#### 裸机
-
-这个配置只能在Linux上使用，而且可能造成宿主机的数据损失，因此不推荐采用。如果这些风险可以接受，可以用以下命令在中国启动一个裸机集群：
-
-```bash
-sudo minikube start --driver=none --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com
-```
-
-### 永久存储
-
-另一个难点是在宿主机和容器间分享文件。因为容器跑在虚拟机上，这尤其困难。
-
-有个好消息是，当使用VirtualBox作为VM驱动时，minikube自动将`$HOME`目录连接到虚拟机中。这让连接虚拟机的文件系统和集群成为可能。kubernetes提供local storage和persistent volume达成这个目的。我做了一个[案例配置](https://github.com/onichandame/docker-dev/blob/master/kube/dev.yaml)。
-
-注意这个功能有一个缺陷：无法成功创建软链接。可以在[这个issue](https://github.com/kubernetes/minikube/issues/4621)中追踪进度。
 
 # 实现
 
@@ -192,7 +164,8 @@ sudo minikube start --driver=none --image-repository=registry.cn-hangzhou.aliyun
 
 ![struc](/image/container-development-structure.png)
 
-run.sh是建造镜像时用的脚本。
+Dockerfile是构建最终镜像的指令。
+
 files目录下包含所有必须的配置文件，如bashrc和vimrc等。
 
 [点此][src]获取源文件
@@ -207,3 +180,5 @@ files目录下包含所有必须的配置文件，如bashrc和vimrc等。
 [pod]: https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/
 [pod-com]: https://www.redhat.com/sysadmin/container-networking-podman
 [pod-mirror]: https://github.com/containers/libpod/issues/5764
+[minikube]: https://minikube.sigs.k8s.io/
+[kind]: https://kind.sigs.k8s.io/

@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-08-06
+date: 2019-08-14
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -144,49 +144,19 @@ To run development environment in kubernetes, things are different.
 
 ### Setup
 
-Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is *minikube*.
+Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is [minikube][minikube]. But I choose to use [kind][kind] as it is more consistent across different platforms than [minikube][minikube].
 
-*minikube* provides many different drivers to setup a cluster, all boils down to 3 categories: virtual machine, container and bare metal.
+[kind][kind] provides an official executable to manage the cluster. One can follow the official guides to install it.
 
-#### Virtual Machine
+Based in China, Google services including the gcr registry is not available. Therefore a mirror registry must come to rescue. [kind][kind] receives such configurations from a yaml file, just like how k8s receives configuration for a deployment. I have created [a configuration file](https://github.com/onichandame/docker-dev/blob/master/kube/cluster.yaml) for it.
 
-To make sure the consistency across different OS, virtualbox is the best VM driver as it works on all major OS.
+One thing to note here is the `nodes.role.extraMounts` should be modified to map a directory on the host machine to the worker node, if persistent storage is desired.
 
-To run a virtualbox backed cluster in China, mirror sites should be used as the official google services are blocked by the censorship.
-
-```bash
-minikube start --driver=virtualbox --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com --iso-url=https://kubernetes.oss-cn-hangzhou.aliyuncs.com/minikube/iso/minikube-v1.11.0.iso --memory=12G --cpus=3
-```
-
-The command above is for minikube ver. 1.11.0. For other versions change the iso version to match your choice.
-
-#### Container
-
-Another driver that stays consistent across different OS is docker. Again, in China some tweaks are necessary:
+Having saved the configuration into cluster.yaml, one can boot up a cluster by running the command below:
 
 ```bash
-minikube start --registry-mirror=https://registry.docker-cn.com --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --vm-driver=docker --alsologtostderr -v=8 --base-image registry.cn-hangzhou.aliyuncs.com/google_containers/kicbase:v0.0.10
+kind create cluster --config git/kube/cluster.yaml
 ```
-
-The cluster uses docker inside a container to orchestrate the resources. In case the docker hub is unavailable, the docker should be configured to use a proxy for pulling images. [This blog](https://blog.csdn.net/activity110/article/details/85241450) provides an easy way to tunnel the docker daemon through a socks proxy.
-
-#### Bare Metal
-
-This setup is not recommended as it only works on Linux and may cause data loss on the host machine as it runs all k8s components directly on the host. If the risks are tolerable, the command below may be used to start a bare metal cluster in China:
-
-```bash
-sudo minikube start --driver=none --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --registry-mirror=https://reg-mirror.qiniu.com
-```
-
-### Persistent Volume
-
-Another challenge is how to store the files persistently. The virtual machines or containers can be killed and removed at any time, so the persistent files have to reside in the host filesystem. *minikube* provides a mounting utility that can mount any directory on the host to the virtual machine or container.
-
-```bash
-minikube mount /home/user/files:/files
-```
-
-Note there is one caveat of the mounting utility. Creating symlinks will fail. Check [this issue](https://github.com/kubernetes/minikube/issues/4621) for progress.
 
 # Implementation
 
@@ -194,7 +164,7 @@ The structure of the source project is as follows:
 
 ![struc](/image/container-development-structure.png)
 
-The run.sh is the main script that is run during container build.
+The Dockerfile is the instruction to build the final image.
 
 The files folder contains all the configuration files like vimrc and bashrc.
 
@@ -210,3 +180,5 @@ The files folder contains all the configuration files like vimrc and bashrc.
 [pod]: https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/
 [pod-com]: https://www.redhat.com/sysadmin/container-networking-podman
 [pod-mirror]: https://github.com/containers/libpod/issues/5764
+[minikube]: https://minikube.sigs.k8s.io/
+[kind]: https://kind.sigs.k8s.io/
