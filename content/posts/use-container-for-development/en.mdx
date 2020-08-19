@@ -1,30 +1,26 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-08-14
+date: 2019-08-19
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
 
 <!-- vim-markdown-toc GFM -->
 
-* [Thoughts](#thoughts)
-* [Challenges](#challenges)
-  * [Podman](#podman)
-  * [Keep Container Running](#keep-container-running)
-  * [Reduce Image Size](#reduce-image-size)
-  * [NOFILE Limit](#nofile-limit)
-  * [UTF-8 Encoding](#utf-8-encoding)
-  * [Windows 10](#windows-10)
-    * [Docker Engine](#docker-engine)
-    * [HyperV](#hyperv)
-  * [Kubernetes](#kubernetes)
-    * [Setup](#setup)
-      * [Virtual Machine](#virtual-machine)
-      * [Container](#container)
-      * [Bare Metal](#bare-metal)
-    * [Persistent Volume](#persistent-volume)
-* [Implementation](#implementation)
+- [Thoughts](#thoughts)
+- [Challenges](#challenges)
+  - [Podman](#podman)
+  - [Keep Container Running](#keep-container-running)
+  - [Reduce Image Size](#reduce-image-size)
+  - [NOFILE Limit](#nofile-limit)
+  - [UTF-8 Encoding](#utf-8-encoding)
+  - [Windows 10](#windows-10)
+    - [Docker Engine](#docker-engine)
+    - [HyperV](#hyperv)
+  - [Kubernetes](#kubernetes)
+    - [Setup](#setup)
+- [Implementation](#implementation)
 
 <!-- vim-markdown-toc -->
 
@@ -156,6 +152,12 @@ Having saved the configuration into cluster.yaml, one can boot up a cluster by r
 
 ```bash
 kind create cluster --config git/kube/cluster.yaml
+```
+
+Another caveat currently not resolved is the that the coredns service may stop resolving domain names after the host being restarted. This can be worked around by restarting the coredns deployment on host restart.
+
+```bash
+kubectl rollout restart deploy/coredns -n kube-system
 ```
 
 # Implementation
