@@ -1,13 +1,12 @@
 ---
 title: "IPFS"
 author: "onichandame"
-date: 2020-08-25
+date: 2020-08-28
 ---
 
 <!-- vim-markdown-toc GFM -->
 
-- [Github Actions](#github-actions)
-- [Personal Homepage](#personal-homepage)
+- [Running IPFS Daemon](#running-ipfs-daemon)
 
 <!-- vim-markdown-toc -->
 
@@ -15,7 +14,7 @@ As an approach(probably the best approach) to the next generation web, IPFS emer
 
 # Running IPFS Daemon
 
-Although [js][js] can instantiate an IPFS node in every major browser, it has some severe limitations. Small number of peers and not supporting DHT are the 2 main issues concerned. These result in unusably slow queries. Although a workaround is used internally, querying the <ipfs.io> through HTTP instead of searching for the file in a p2p way, still some limitations cannot be bypassed. Such workaround breaks the idea of distributed web emphasized by IPFS itself, bringing in a single point of failure to the network. The <ipfs.io> has already been censored by Chinese government, therefore such workaround needs some more hacks to work in China.
+Although [js-ipfs][js] can instantiate an IPFS node in every major browser, it has some severe limitations. Small number of peers and not supporting DHT are the 2 main issues concerned. These result in unusably slow queries. Although a workaround is used internally, querying the <ipfs.io> through HTTP instead of searching for the file in a p2p way, still some limitations cannot be bypassed. Such workaround breaks the idea of distributed web emphasized by IPFS itself, bringing in a single point of failure to the network. The <ipfs.io> has already been censored by Chinese government, therefore such workaround needs some more hacks to work in China.
 
 At the current stage, running an IPFS daemon locally is hence desired. The apps running on the local machine can therefore make use of the daemon through the REST API.
 
@@ -52,13 +51,5 @@ docker run -d --name ipfs -v <path to staging directory>:/export -v <path to dat
 Now the daemon can be accessed from host. Try to run `curl -X POST http://localhost:5001/api/v0/id` on the host to check if the API is accessible.
 
 The steps above are only needed once at the initial setup. On restarts the configuration stored in the mounted volume will automatically be active.
-
-# Hosting
-
-The hosting of IPFS is much simpler than that in HTTP as it is essentially the same as sharing files using p2p protocols and file sharing is pretty much mature already.
-
-# Database
-
-The database is at the core of web services.
 
 [js]: https://github.com/ipfs/js-ipfs
