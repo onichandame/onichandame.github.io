@@ -14,7 +14,7 @@ As an approach(probably the best approach) to the next generation web, IPFS emer
 
 # Running IPFS Daemon
 
-Although [js-ipfs][js] can instantiate an IPFS node in every major browser, it has some severe limitations. Small number of peers and not supporting DHT are the 2 main issues concerned. These result in unusably slow queries. Although a workaround is used internally, querying the <ipfs.io> through HTTP instead of searching for the file in a p2p way, still some limitations cannot be bypassed. Such workaround breaks the idea of distributed web emphasized by IPFS itself, bringing in a single point of failure to the network. The <ipfs.io> has already been censored by Chinese government, therefore such workaround needs some more hacks to work in China.
+Although [js-ipfs][js] can instantiate an IPFS node in every major browser, it has some severe limitations. Small number of peers and not supporting DHT are the 2 main issues concerned. These result in unusably slow queries. Although a workaround is used internally, querying the <https://ipfs.io> through HTTP instead of searching for the file in a p2p way, still some limitations cannot be bypassed. Such workaround breaks the idea of distributed web emphasized by IPFS itself, bringing in a single point of failure to the network. The <https://ipfs.io> has already been censored by Chinese government, therefore such workaround needs some more hacks to work in China.
 
 At the current stage, running an IPFS daemon locally is hence desired. The apps running on the local machine can therefore make use of the daemon through the REST API.
 
