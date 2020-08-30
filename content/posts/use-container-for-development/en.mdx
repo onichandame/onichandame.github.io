@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2019-08-19
+date: 2019-08-31
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -154,6 +154,19 @@ Having saved the configuration into cluster.yaml, one can boot up a cluster by r
 kind create cluster --config git/kube/cluster.yaml
 ```
 
+The next step is to install ingress controller. From my experience it would be very inconvenient if services are exposed to different ports instead of a single port but different domains.
+
+According to the [official doc][kind-ingress], one can choose an ingress controller from 3: Ambassador, Contour and Nginx. Based on my experiments, only the ambassador works well in China. To install the ambassador controller, run the following commands.
+
+```bash
+kubectl apply -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-crds.yaml
+kubectl apply -n ambassador -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-kind.yaml
+```
+
+After all the pods in the namespace `ambassador` are up, the controller is ready for use.
+
+Another concern is that all the ingresses using ambassador should be annotated by `kubernetes.io/ingress.class: ambassador` so that the ambassador controller is notified to expose the annotated ingress.
+
 Another caveat currently not resolved is the that the coredns service may stop resolving domain names after the host being restarted. This can be worked around by restarting the coredns deployment on host restart.
 
 ```bash
@@ -184,3 +197,4 @@ The files folder contains all the configuration files like vimrc and bashrc.
 [pod-mirror]: https://github.com/containers/libpod/issues/5764
 [minikube]: https://minikube.sigs.k8s.io/
 [kind]: https://kind.sigs.k8s.io/
+[kind-ingress]: https://kind.sigs.k8s.io/docs/user/ingress/

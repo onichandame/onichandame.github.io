@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2019-08-19
+date: 2019-08-31
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -153,6 +153,19 @@ HyperV 就是一个传统的 VM hypervisor，Docker 用它建立一个跑 docker
 ```bash
 kind create cluster --config git/kube/cluster.yaml
 ```
+
+下一步是安装 ingress 控制器。基于我的经验，将服务与端口一一对应非常不便于管理。而将不同服务由同一个端口的不同域名对应则更方便。
+
+基于[官方文档][kind-ingress]，有 3 种控制器可选：Ambassador, Contour 和 Nginx。基于我的实验结果，仅 ambassador 在中国可用。要安装 ambassador 控制器，执行以下命令。
+
+```bash
+kubectl apply -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-crds.yaml
+kubectl apply -n ambassador -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-kind.yaml
+```
+
+在命名空间`ambassador`种的所有 pod 都上线后，控制器即为可用状态。
+
+另一个需要注意的点是，所有需要使用 ambassador 的 ingress 都需要标注为`kubernetes.io/ingress.class: ambassador`，以通知 ambassador 控制器暴露这个 ingress。
 
 另一个尚未完全解决的问题是当宿主机重启后，coredns 服务可能停止解析域名。一个临时的解决办法是在宿主机重启后手动重启 coredns 服务。
 
