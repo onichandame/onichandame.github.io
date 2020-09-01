@@ -163,9 +163,9 @@ kubectl apply -f https://github.com/datawire/ambassador-operator/releases/latest
 kubectl apply -n ambassador -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-kind.yaml
 ```
 
-在命名空间`ambassador`种的所有 pod 都上线后，控制器即为可用状态。
+在命名空间`ambassador`中的所有 pod 都上线后，控制器即为可用状态。
 
-另一个需要注意的点是，所有需要使用 ambassador 的 ingress 都需要标注为`kubernetes.io/ingress.class: ambassador`，以通知 ambassador 控制器暴露这个 ingress。
+一个需要注意的点是，所有需要使用 ambassador 的 ingress 都需要标注为`kubernetes.io/ingress.class: ambassador`，以通知 ambassador 控制器暴露这个 ingress。
 
 另一个尚未完全解决的问题是当宿主机重启后，coredns 服务可能停止解析域名。一个临时的解决办法是在宿主机重启后手动重启 coredns 服务。
 
@@ -197,3 +197,4 @@ files 目录下包含所有必须的配置文件，如 bashrc 和 vimrc 等。
 [pod-mirror]: https://github.com/containers/libpod/issues/5764
 [minikube]: https://minikube.sigs.k8s.io/
 [kind]: https://kind.sigs.k8s.io/
+[kind-ingress]: https://kind.sigs.k8s.io/docs/user/ingress/
