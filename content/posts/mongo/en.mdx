@@ -1,7 +1,7 @@
 ---
 title: "MongoDB in Development"
 author: "onichandame"
-date: 2019-09-09
+date: 2019-09-10
 ---
 
 <!-- vim-markdown-toc GFM -->
@@ -20,6 +20,6 @@ The most intuitive and simple solution will be to split the data into multiple d
 
 ![flow](/image/split-document.png)
 
-As shown above, when appending new data to the document, the first try assumes that the operation can simply succeed. Once error code 17419 is thrown, the server rejects the operation as the resulting document's size will exceed the limit. Now new document must be created to store the new data.
+As shown above, when appending new data to the document, the first try assumes that the operation can simply succeed. Once error code 17419 or 10334 is thrown, the server rejects the operation as the resulting document's size will exceed the limit. Now new document must be created to store the new data.
 
 This solution does require some handling on the application layer, like merging documents on query. But the overhead of data insertion is kept minimal.
