@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-08-31
+date: 2020-09-15
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -167,7 +167,16 @@ After all the pods in the namespace `ambassador` are up, the controller is ready
 
 Another concern is that all the ingresses using ambassador should be annotated by `kubernetes.io/ingress.class: ambassador` so that the ambassador controller is notified to expose the annotated ingress.
 
-Another caveat currently not resolved is the that the coredns service may stop resolving domain names after the host being restarted. This can be worked around by restarting the coredns deployment on host restart.
+To install other ingress controllers, the administrator needs to make sure that the gateway is installed on the node where the the extra port mapping rules are applied.
+
+I choose to install Istio as it provides many more useful features relating to the monitoring stuff.
+
+1. Run `curl -L https://istio.io/downloadIstio | sh -` to download the latest CLI of Istio.
+2. Run `istioctl install -f istio.yaml` where the _istio.yaml_ can be found at [here](https://github.com/onichandame/docker-dev/blob/master/kube/istio.yaml).
+
+Now the Istio default profile has been installed.
+
+One caveat currently not resolved is the that the coredns service may stop resolving domain names after the host being restarted. This can be worked around by restarting the coredns deployment on host restart.
 
 ```bash
 kubectl rollout restart deploy/coredns -n kube-system

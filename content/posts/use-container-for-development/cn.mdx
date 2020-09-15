@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2020-08-31
+date: 2020-09-15
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -167,7 +167,17 @@ kubectl apply -n ambassador -f https://github.com/datawire/ambassador-operator/r
 
 一个需要注意的点是，所有需要使用 ambassador 的 ingress 都需要标注为`kubernetes.io/ingress.class: ambassador`，以通知 ambassador 控制器暴露这个 ingress。
 
-另一个尚未完全解决的问题是当宿主机重启后，coredns 服务可能停止解析域名。一个临时的解决办法是在宿主机重启后手动重启 coredns 服务。
+要安装其它 ingress controller，管理员需要确保 gateway 安装在 extra port mapping 规则所在的 node 上。
+
+I choose to install Istio as it provides many more useful features relating to the monitoring stuff.
+因为 Istio 提供许多有关监控的功能，我选择使用 Istio。
+
+1. 运行`curl -L https://istio.io/downloadIstio | sh -`下载 Istio 的 CLI 客户端
+2. 运行`istioctl install -f istio.yaml`，*istio.yaml*可[从此下载](https://github.com/onichandame/docker-dev/blob/master/kube/istio.yaml)。
+
+现在 Istio default 已经安装完成。
+
+一个尚未完全解决的问题是当宿主机重启后，coredns 服务可能停止解析域名。一个临时的解决办法是在宿主机重启后手动重启 coredns 服务。
 
 ```bash
 kubectl rollout restart deploy/coredns -n kube-system
