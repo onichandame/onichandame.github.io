@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2020-09-15
+date: 2020-09-16
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -176,6 +176,8 @@ I choose to install Istio as it provides many more useful features relating to t
 2. 运行`istioctl install -f istio.yaml`，*istio.yaml*可[从此下载](https://github.com/onichandame/docker-dev/blob/master/kube/istio.yaml)。
 
 现在 Istio default 已经安装完成。
+
+最后一个手动步骤是将 namespace 标记上`istio-injection=enabled`，用以通知 Istio 向该 namespace 的每一个 pod 注入 Sidecar。这个步骤是大部分 Istio 核心功能的前提。
 
 一个尚未完全解决的问题是当宿主机重启后，coredns 服务可能停止解析域名。一个临时的解决办法是在宿主机重启后手动重启 coredns 服务。
 

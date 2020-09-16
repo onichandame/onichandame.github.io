@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-09-15
+date: 2020-09-16
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -175,6 +175,8 @@ I choose to install Istio as it provides many more useful features relating to t
 2. Run `istioctl install -f istio.yaml` where the _istio.yaml_ can be found at [here](https://github.com/onichandame/docker-dev/blob/master/kube/istio.yaml).
 
 Now the Istio default profile has been installed.
+
+The last manual setup is to label the namespace by `istio-injection=enabled` which tells Istio to inject sidecar proxy to every pod in the namespace. This is required to enable most core functionalities of Istio.
 
 One caveat currently not resolved is the that the coredns service may stop resolving domain names after the host being restarted. This can be worked around by restarting the coredns deployment on host restart.
 
