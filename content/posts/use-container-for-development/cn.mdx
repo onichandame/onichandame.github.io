@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2020-09-16
+date: 2020-09-17
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -20,6 +20,7 @@ import {LocalizedLink} from '../../../src/i18n'
     - [HyperV](#hyperv)
   - [Kubernetes](#kubernetes)
     - [集群搭建](#集群搭建)
+  - [端口映射](#端口映射)
 - [实现](#实现)
 
 <!-- vim-markdown-toc -->
@@ -183,6 +184,17 @@ I choose to install Istio as it provides many more useful features relating to t
 
 ```bash
 kubectl rollout restart deploy/coredns -n kube-system
+```
+
+## 端口映射
+
+为从宿主机访问容器中的服务器，最好将容器的端口映射到宿主机上。所需的命令仅仅是在创建容器时加入`-p <host port>:<container port>`。但是，端口映射的配置在容器创建后不能修改，因此容器中的服务器必须侦听同一个端口。但不同的项目有不同的配置，不能强行让项目的配置配合本地的容器配置。
+
+一个解决方案是将导向映射的端口的请求导入服务器侦听的端口。Socat 可以实现这个需求。
+
+```bash
+# redirect requests for the mapped port to the server port
+socat TCP4-LISTEN:<mapped port>,fork,reuseaddr TCP4:localhost:<server port>
 ```
 
 # 实现

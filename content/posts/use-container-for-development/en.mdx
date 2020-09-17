@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-09-16
+date: 2020-09-17
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -20,6 +20,7 @@ import {LocalizedLink} from '../../../src/i18n'
     - [HyperV](#hyperv)
   - [Kubernetes](#kubernetes)
     - [Setup](#setup)
+  - [Port Forwarding](#port-forwarding)
 - [Implementation](#implementation)
 
 <!-- vim-markdown-toc -->
@@ -182,6 +183,17 @@ One caveat currently not resolved is the that the coredns service may stop resol
 
 ```bash
 kubectl rollout restart deploy/coredns -n kube-system
+```
+
+## Port Forwarding
+
+To access a web server running in a container from the host, port mapping is the best option. It is as simple as adding the flag `-p <host port>:<container port>` to the command creating the container. However, one caveat of this setup is that the port-mapping rules cannot be updated once the container has been created. Hence within the container, the web servers must listen on the same port. But different projects use different settings. One cannot rely on the project settings complying with the local container settings.
+
+A solution to this problem is to redirect the requests for the mapped port to the port the web server is listening on. Socat is a tool designed for this.
+
+```bash
+# redirect requests for the mapped port to the server port
+socat TCP4-LISTEN:<mapped port>,fork,reuseaddr TCP4:localhost:<server port>
 ```
 
 # Implementation
