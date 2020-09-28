@@ -1,26 +1,26 @@
 ---
 title: "React-based 3D Components"
 author: "onichandame"
-date: 2019-05-13
+date: 2020-05-13
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
 
 <!-- vim-markdown-toc GFM -->
 
-* [Background](#background)
-* [Demand Analysis](#demand-analysis)
-  * [End-User Experience](#end-user-experience)
-  * [Technical Constraints](#technical-constraints)
-* [Technology Analysis](#technology-analysis)
-  * [React 360](#react-360)
-  * [Babylon](#babylon)
-  * [Three-based Solution](#three-based-solution)
-    * [React-Three-Fiber](#react-three-fiber)
-* [Implementation](#implementation)
-  * [Design](#design)
-  * [Model Loading](#model-loading)
-  * [Viewport Movement](#viewport-movement)
+- [Background](#background)
+- [Demand Analysis](#demand-analysis)
+  - [End-User Experience](#end-user-experience)
+  - [Technical Constraints](#technical-constraints)
+- [Technology Analysis](#technology-analysis)
+  - [React 360](#react-360)
+  - [Babylon](#babylon)
+  - [Three-based Solution](#three-based-solution)
+    - [React-Three-Fiber](#react-three-fiber)
+- [Implementation](#implementation)
+  - [Design](#design)
+  - [Model Loading](#model-loading)
+  - [Viewport Movement](#viewport-movement)
 
 <!-- vim-markdown-toc -->
 
@@ -110,11 +110,11 @@ The first problem encountered is to load the models made by the designer. As sta
 [R3F][r3f] provides a hook `useLoader` that can be used in conjunction with `GLTFLoader` from three to dynamically load GLTF files into the model.
 
 ```typescript
-import { useLoader } from 'react-three-fiber'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { useLoader } from "react-three-fiber"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 export const Model = () => {
-  const gltf = useLoader(GLTFLoader, '/static/model.gblb')
+  const gltf = useLoader(GLTFLoader, "/static/model.gblb")
   return <primitive object={gltf.scene} dispose={null} {...other} />
 }
 ```

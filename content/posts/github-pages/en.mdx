@@ -1,13 +1,13 @@
 ---
 title: "Github Pages"
 author: "onichandame"
-date: 2019-06-01
+date: 2020-06-01
 ---
 
 <!-- vim-markdown-toc GFM -->
 
-* [Github Actions](#github-actions)
-* [Personal Homepage](#personal-homepage)
+- [Github Actions](#github-actions)
+- [Personal Homepage](#personal-homepage)
 
 <!-- vim-markdown-toc -->
 
@@ -28,22 +28,22 @@ ghpage-publish:
   name: ghpage-publish
   runs-on: ubuntu-latest
   steps:
-  - name: Checkout repository
-    uses: actions/checkout@master
-  - name: Set up Node.js
-    uses: actions/setup-node@master
-    with:
-      node-version: 14.x
-  - name: Set up dependency
-    run: yarn install --frozen-lockfile
-  - name: Build pages
-    run: yarn build:docs
-  - name: Publish
-    uses: JamesIves/github-pages-deploy-action@releases/v3
-    with:
-      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      BRANCH: gh-pages
-      FOLDER: docs
+    - name: Checkout repository
+      uses: actions/checkout@master
+    - name: Set up Node.js
+      uses: actions/setup-node@master
+      with:
+        node-version: 14.x
+    - name: Set up dependency
+      run: yarn install --frozen-lockfile
+    - name: Build pages
+      run: yarn build:docs
+    - name: Publish
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: docs
 ```
 
 The above action pre-assumes that the project is based on Node.js, and that `yarn` is used as the package manager, and that `build:docs` script builds the website into /docs directory. When the action succeeds, the `gh-pages` branch contains the latest website.

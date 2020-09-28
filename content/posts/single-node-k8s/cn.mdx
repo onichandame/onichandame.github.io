@@ -1,52 +1,52 @@
 ---
 title: "国内安装单node k8s集群"
 author: "onichandame"
-date: 2019-04-07
+date: 2020-04-07
 ---
 
 <!-- vim-markdown-toc GFM -->
 
-* [场景](#场景)
-* [材料](#材料)
-* [过程](#过程)
-  * [安装OS](#安装os)
-  * [开启防火墙端口](#开启防火墙端口)
-  * [开启网络桥接](#开启网络桥接)
-  * [安装container运行环境](#安装container运行环境)
-  * [安装kubectl、kubelet、kubeadm](#安装kubectlkubeletkubeadm)
-  * [启动](#启动)
-  * [配置kubectl](#配置kubectl)
-  * [安装网络插件](#安装网络插件)
-  * [关闭master保护](#关闭master保护)
-  * [安装Load Balancer](#安装load-balancer)
-  * [安装Ingress Controller](#安装ingress-controller)
-* [结语](#结语)
+- [场景](#场景)
+- [材料](#材料)
+- [过程](#过程)
+  - [安装 OS](#安装os)
+  - [开启防火墙端口](#开启防火墙端口)
+  - [开启网络桥接](#开启网络桥接)
+  - [安装 container 运行环境](#安装container运行环境)
+  - [安装 kubectl、kubelet、kubeadm](#安装kubectlkubeletkubeadm)
+  - [启动](#启动)
+  - [配置 kubectl](#配置kubectl)
+  - [安装网络插件](#安装网络插件)
+  - [关闭 master 保护](#关闭master保护)
+  - [安装 Load Balancer](#安装load-balancer)
+  - [安装 Ingress Controller](#安装ingress-controller)
+- [结语](#结语)
 
 <!-- vim-markdown-toc -->
 
 # 场景
 
-我的新项目需要在一台距离办公地点比较远的的物理机上运行，且项目本身比较复杂，有很多微服务。因此container orchestration是最好的部署方式。但国内部署+k8s+物理机的限制让部署初期的设置非常复杂。
+我的新项目需要在一台距离办公地点比较远的的物理机上运行，且项目本身比较复杂，有很多微服务。因此 container orchestration 是最好的部署方式。但国内部署+k8s+物理机的限制让部署初期的设置非常复杂。
 
 # 材料
 
 上述场景提供的材料有：
 
-* 一台服务器
-  * CPU：E3-1220v6
-  * RAM：32GB
-  * HDD：4TB
-* 一段LAN中的空闲IP段
+- 一台服务器
+  - CPU：E3-1220v6
+  - RAM：32GB
+  - HDD：4TB
+- 一段 LAN 中的空闲 IP 段
 
 # 过程
 
-## 安装OS
+## 安装 OS
 
-我安装的是最新版CentOS 7，因为CentOS 8对docker的支持还不完善。不使用docker和containerd的话可以用CentOS 8。其他发行版我不熟悉，在此不做推荐。
+我安装的是最新版 CentOS 7，因为 CentOS 8 对 docker 的支持还不完善。不使用 docker 和 containerd 的话可以用 CentOS 8。其他发行版我不熟悉，在此不做推荐。
 
 ## 开启防火墙端口
 
-根据[官方文档][adm]，master和worker需要的防火墙端口共有7个和1段。另外根据[文档][flannel]，要使用flannel还需要开放2个端口。再根据[文档][nginx]，80和443端口需要开放。
+根据[官方文档][adm]，master 和 worker 需要的防火墙端口共有 7 个和 1 段。另外根据[文档][flannel]，要使用 flannel 还需要开放 2 个端口。再根据[文档][nginx]，80 和 443 端口需要开放。
 
 ```bash
 firewall-cmd --zone=public --permanent --add-port=443/tcp
@@ -73,16 +73,16 @@ sysctl --system
 
 注意：在此步骤之前先确认`lsmod | grep br_netfilter`的输出非空。如果是空，需要执行`modprobe br_netfilter`然后再确认。
 
-## 安装container运行环境
+## 安装 container 运行环境
 
-我选择的是docker，具体步骤在[此处](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#docker)，但我的操作依据的是centos官方推荐。如果用containerd或者cri-o请参见官方教程。
+我选择的是 docker，具体步骤在[此处](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#docker)，但我的操作依据的是 centos 官方推荐。如果用 containerd 或者 cri-o 请参见官方教程。
 
 ```bash
 yum install epel-release -y
 yum install docker-ce -y
 ```
 
-## 安装kubectl、kubelet、kubeadm
+## 安装 kubectl、kubelet、kubeadm
 
 接下来是安装部署工具。
 
@@ -107,7 +107,7 @@ yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 systemctl enable --now kubelet
 ```
 
-现在kubelet已经安装完成并运行。接下来需要启动集群。
+现在 kubelet 已经安装完成并运行。接下来需要启动集群。
 
 ## 启动
 
@@ -117,13 +117,13 @@ systemctl enable --now kubelet
 kubeadm init --pod-network-cidr=10.244.0.0/16 --image-repository registry.cn-hangzhou.aliyuncs.com/google_containers
 ```
 
-由于我使用flannel，需要设定`--pod-network-cidr=10.244.0.0/16`。由于是在国内部署，所以需要使用镜像`--image-repository registry.cn-hangzhou.aliyuncs.com/google_containers`。
+由于我使用 flannel，需要设定`--pod-network-cidr=10.244.0.0/16`。由于是在国内部署，所以需要使用镜像`--image-repository registry.cn-hangzhou.aliyuncs.com/google_containers`。
 
-这一步的输出中`kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>`的部分需要记下来，将来加入新node时有用。
+这一步的输出中`kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>`的部分需要记下来，将来加入新 node 时有用。
 
-## 配置kubectl
+## 配置 kubectl
 
-如果当前用户非root，需要配置kubectl以连接集群。
+如果当前用户非 root，需要配置 kubectl 以连接集群。
 
 ```bash
 mkdir -p $HOME/.kube
@@ -131,29 +131,29 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-如果当前用户是root，则需要`export KUBECONFIG=/etc/kubernetes/admin.conf`。
+如果当前用户是 root，则需要`export KUBECONFIG=/etc/kubernetes/admin.conf`。
 
 ## 安装网络插件
 
-k8s是为分布式集群设计的，因此不同宿主机上的pod之间的LAN通信需要一个网络插件提供，根据[文档][flannel]，我选择使用flannel。因为其它的插件有人报告过出现dns问题，具体来源记不清了，但同issue下有人报告过flannel没问题。
+k8s 是为分布式集群设计的，因此不同宿主机上的 pod 之间的 LAN 通信需要一个网络插件提供，根据[文档][flannel]，我选择使用 flannel。因为其它的插件有人报告过出现 dns 问题，具体来源记不清了，但同 issue 下有人报告过 flannel 没问题。
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml
 ```
 
-## 关闭master保护
+## 关闭 master 保护
 
-k8s默认不允许master跑非system的pod，但我的场景必须在master上跑worker的任务，因此需要关闭此保护。
+k8s 默认不允许 master 跑非 system 的 pod，但我的场景必须在 master 上跑 worker 的任务，因此需要关闭此保护。
 
 ```bash
 kubectl taint nodes --all node-role.kubernetes.io/master-
 ```
 
-## 安装Load Balancer
+## 安装 Load Balancer
 
-在Cloud上，比如AWS和GKE，service可以直接使用LoadBalancer来获取外部ip，但此功能依赖于Cloud Provider的load balancer。现在需要安装一个load balancer。我选择MetalLB，官方文档[在此][metallb]。
+在 Cloud 上，比如 AWS 和 GKE，service 可以直接使用 LoadBalancer 来获取外部 ip，但此功能依赖于 Cloud Provider 的 load balancer。现在需要安装一个 load balancer。我选择 MetalLB，官方文档[在此][metallb]。
 
-先编辑kube-proxy的配置：
+先编辑 kube-proxy 的配置：
 
 ```bash
 kubectl edit configmap -n kube-system kube-proxy
@@ -161,9 +161,9 @@ kubectl edit configmap -n kube-system kube-proxy
 
 在其中的`ipvs`项下加入`strictARP: true`
 
-此设置的原理还没彻底弄明白，但猜测与arp的底层机制有关。
+此设置的原理还没彻底弄明白，但猜测与 arp 的底层机制有关。
 
-现在可以部署MetalLB服务了：
+现在可以部署 MetalLB 服务了：
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.9.3/manifests/namespace.yaml
@@ -171,11 +171,11 @@ kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.9.3/manifes
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
 ```
 
-现在可以用`kubectl get pods --all-namespaces`检查MetalLB相关容器是否正常在线。
+现在可以用`kubectl get pods --all-namespaces`检查 MetalLB 相关容器是否正常在线。
 
-接下来需要配置MetalLB，简单来说就是告诉MetalLB有哪些ip地址可以分配给service。
+接下来需要配置 MetalLB，简单来说就是告诉 MetalLB 有哪些 ip 地址可以分配给 service。
 
-打开一个新的yaml文件，加入内容：
+打开一个新的 yaml 文件，加入内容：
 
 ```yaml
 apiVersion: v1
@@ -192,27 +192,27 @@ data:
       - 192.168.1.240-192.168.1.250
 ```
 
-其中addresses项是可用ip地址的配置项，其它项不需要改动。
+其中 addresses 项是可用 ip 地址的配置项，其它项不需要改动。
 
-完成配置文件的修改后运行`kubectl apply -f <配置文件>`即可配置MetalLB。
+完成配置文件的修改后运行`kubectl apply -f <配置文件>`即可配置 MetalLB。
 
-现在就可以将LoadBalancer类型的service部署上线了。
+现在就可以将 LoadBalancer 类型的 service 部署上线了。
 
-## 安装Ingress Controller
+## 安装 Ingress Controller
 
-LoadBalancer是最常用的service类型，但大量ip管理起来还是比较麻烦。从k8s 1.1开始新加入了一个资源类型Ingress。其作用类似于Apache或者Nginx，可以对入站流量进行更灵活的控制，以达到简化维护的目的。
+LoadBalancer 是最常用的 service 类型，但大量 ip 管理起来还是比较麻烦。从 k8s 1.1 开始新加入了一个资源类型 Ingress。其作用类似于 Apache 或者 Nginx，可以对入站流量进行更灵活的控制，以达到简化维护的目的。
 
-Ingress的一个很有用的功能是根据域名引导入站流量。比如现有2个域名，aaa.com和bbb.com，分别对应a服务器和b服务器。经过DNS解析后两个域名都指向同一个ip地址，即Ingress所在node的ip。当有人访问aaa.com的时候，Ingress就能将流量引导至a服务器，对b服务器也是同理。
+Ingress 的一个很有用的功能是根据域名引导入站流量。比如现有 2 个域名，aaa.com 和 bbb.com，分别对应 a 服务器和 b 服务器。经过 DNS 解析后两个域名都指向同一个 ip 地址，即 Ingress 所在 node 的 ip。当有人访问 aaa.com 的时候，Ingress 就能将流量引导至 a 服务器，对 b 服务器也是同理。
 
-想要使用Ingress，就必须安装Ingress Controller。
+想要使用 Ingress，就必须安装 Ingress Controller。
 
-我选择Nginx-Ingress。先clone配置文件。
+我选择 Nginx-Ingress。先 clone 配置文件。
 
 ```bash
 git clone https://github.com/nginxinc/kubernetes-ingress/ --single-branch --branch v1.6.3
 ```
 
-然后cd到deployments子目录，依次进行下面的操作。
+然后 cd 到 deployments 子目录，依次进行下面的操作。
 
 ```bash
 kubectl apply -f common/ns-and-sa.yaml
@@ -223,11 +223,11 @@ kubectl apply -f common/custom-resource-definitions.yaml
 kubectl apply -f daemon-set/nginx-ingress.yaml
 ```
 
-现在通过`$ kubectl get pods --namespace=nginx-ingress`确认nginx-ingress是否正常在线。
+现在通过`$ kubectl get pods --namespace=nginx-ingress`确认 nginx-ingress 是否正常在线。
 
 # 结语
 
-现在如果一切操作正确，单node的k8s集群已经可以正常使用，并且支持最新k8s 1.18的所有特性。
+现在如果一切操作正确，单 node 的 k8s 集群已经可以正常使用，并且支持最新 k8s 1.18 的所有特性。
 
 [adm]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 [flannel]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network

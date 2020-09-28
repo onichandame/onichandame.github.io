@@ -1,20 +1,20 @@
 ---
 title: "Use Jest for Unit Test"
 author: "onichandame"
-date: 2019-06-09
+date: 2020-06-09
 ---
 
 <!-- vim-markdown-toc GFM -->
 
-* [Asynchronous Code](#asynchronous-code)
+- [Asynchronous Code](#asynchronous-code)
 
 <!-- vim-markdown-toc -->
 
 Unit test is a must for autiomated CI/CD workflow. Here I record some challenges solved with Jest.
 
 ```typescript
-describe('module 1', () => {
-  test('dances', () => expect(module1.dance()).toBeTruthy())
+describe("module 1", () => {
+  test("dances", () => expect(module1.dance()).toBeTruthy())
 })
 ```
 
@@ -25,27 +25,27 @@ Jest runs tests in parallel so each test must have a clear termination point. If
 The problem becomes apparent if the test callback is asynchronous.
 
 ```typescript
-describe('module 1', () => {
-  test('dances', async () => expect(module1.dance()).toBeTruthy())
+describe("module 1", () => {
+  test("dances", async () => expect(module1.dance()).toBeTruthy())
 })
 ```
 
 The above code still functions well if `module1.dance()` is synchronous. What happens if the resolved value needs to be tested?
 
 ```typescript
-describe('module 1', () => {
-  test('dances', async () => expect(await module1.dance()).toBeTruthy())
+describe("module 1", () => {
+  test("dances", async () => expect(await module1.dance()).toBeTruthy())
 })
 ```
 
 The above is a simple solution to the simple question. What if the question becomes more complicated?
 
 ```typescript
-describe('module 1', done => {
-  test('dances', async () => {
+describe("module 1", done => {
+  test("dances", async () => {
     expect.assertions(1)
     const dance = await module1.dance()
-    dance.on('spin', speed => {
+    dance.on("spin", speed => {
       expect(speed).toBeGreaterThan(5)
       done()
     })

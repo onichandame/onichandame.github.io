@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2020-09-17
+date: 2020-09-28
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -20,6 +20,8 @@ import {LocalizedLink} from '../../../src/i18n'
     - [HyperV](#hyperv)
   - [Kubernetes](#kubernetes)
     - [集群搭建](#集群搭建)
+      - [Kind](#kind)
+      - [K3D](#k3d)
   - [端口映射](#端口映射)
 - [实现](#实现)
 
@@ -141,7 +143,9 @@ HyperV 就是一个传统的 VM hypervisor，Docker 用它建立一个跑 docker
 
 ### 集群搭建
 
-安装 kubernetes 集群并不像 Docker Desktop 那样简单。官方推荐使用[minikube][minikube]配置开发环境。但我选择用[kind][kind]，因为它对跨平台的支持比[minikube][minikube]更好，更统一。
+安装 kubernetes 集群并不像 Docker Desktop 那样简单。官方推荐使用[minikube][minikube]配置开发环境。但它严重依赖虚拟机技术，因此相对于其它选择，minikube 需要消耗更多资源。[Kind][kind]和[k3d][k3d]都是利用容器技术代替虚拟机的选择。
+
+#### Kind
 
 [kind][kind]提供一个可执行程序用以管理集群，可以根据官方文档的指示进行安装。
 
@@ -186,6 +190,20 @@ I choose to install Istio as it provides many more useful features relating to t
 kubectl rollout restart deploy/coredns -n kube-system
 ```
 
+#### K3D
+
+[K3d][k3d0]是一个[Rancher][rancher]产品，它基于一个超轻量的 kubernetes 发布版：[k3s][k3s]。因此其适合在低资源消耗的场景中应用，如 IoT 和本地测试环境等。就像[Kind][kind]一样，[k3d][k3d]利用容器技术模拟多 node 集群，但消耗更少的资源。
+
+[K3d][k3d]依靠命令行参数实现个性化配置。我使用如下的命令：
+
+```bash
+k3d cluster create --no-lb --k3s-server-arg='--disable=traefik' -p 80:30001@agent[0] -p 443:30002@agent[0] -a 3 -v <path to workspace on host>:/git dev
+```
+
+外部负载均衡和 traefik 都被禁用，因为我希望使用 istio 来代替。端口映射的参数也是为 istio 安装做准备。参数`-a 3`指定需要 3 个 worker node。volume mount 参数将宿主机的工作区加载到所有 node 上，以提供稳定的数据存储。
+
+istio 的安装方法如上所示。
+
 ## 端口映射
 
 为从宿主机访问容器中的服务器，最好将容器的端口映射到宿主机上。所需的命令仅仅是在创建容器时加入`-p <host port>:<container port>`。但是，端口映射的配置在容器创建后不能修改，因此容器中的服务器必须侦听同一个端口。但不同的项目有不同的配置，不能强行让项目的配置配合本地的容器配置。
@@ -222,3 +240,6 @@ files 目录下包含所有必须的配置文件，如 bashrc 和 vimrc 等。
 [minikube]: https://minikube.sigs.k8s.io/
 [kind]: https://kind.sigs.k8s.io/
 [kind-ingress]: https://kind.sigs.k8s.io/docs/user/ingress/
+[k3d]: https://github.com/rancher/k3d/
+[rancher]: http://www.rancher.com/
+[k3s]: https://github.com/rancher/k3s

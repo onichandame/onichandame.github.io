@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-09-17
+date: 2020-09-28
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -20,6 +20,8 @@ import {LocalizedLink} from '../../../src/i18n'
     - [HyperV](#hyperv)
   - [Kubernetes](#kubernetes)
     - [Setup](#setup)
+      - [Kind](#kind)
+      - [K3D](#k3d)
   - [Port Forwarding](#port-forwarding)
 - [Implementation](#implementation)
 
@@ -141,7 +143,9 @@ To run development environment in kubernetes, things are different.
 
 ### Setup
 
-Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is [minikube][minikube]. But I choose to use [kind][kind] as it is more consistent across different platforms than [minikube][minikube].
+Setting up a kubernetes cluster is not as straightforward as running Docker Desktop. The official way to setup a development cluster is [minikube][minikube]. But it heavily depends on the VM stack. Hence it consumes more resources compared with other alternatives. [Kind][kind] and [k3d][k3d] are two alternatives making use of containers instead of virtual machines.
+
+#### Kind
 
 [kind][kind] provides an official executable to manage the cluster. One can follow the official guides to install it.
 
@@ -185,6 +189,20 @@ One caveat currently not resolved is the that the coredns service may stop resol
 kubectl rollout restart deploy/coredns -n kube-system
 ```
 
+#### K3D
+
+[K3d][k3d] is a product of [Rancher][rancher]. It is based on [k3s][k3s], a super-lightweight kubernetes distribution suitable for low-resource scenarios, such as IoT or local testing environment. Like [kind][kind], [K3d][k3d] runs as many nodes as wished in containers to simulate a multi-node cluster. But this is much lighter than kind.
+
+[K3d][k3d] relies on the command line arguments to customize the cluster. The command I use is:
+
+```bash
+k3d cluster create --no-lb --k3s-server-arg='--disable=traefik' -p 80:30001@agent[0] -p 443:30002@agent[0] -a 3 -v <path to workspace on host>:/git dev
+```
+
+The arguments specifically disables the external load balancer and traefik. As I will install istio manually as a replacement. The port mapping argument is also for istio installation. the `-a 3` argument instructs k3d to spin up 3 worker nodes. the volume mount argument maps the workspace on the host to all the nodes for persistent data storage.
+
+The installation of istio follows the same instruction above.
+
 ## Port Forwarding
 
 To access a web server running in a container from the host, port mapping is the best option. It is as simple as adding the flag `-p <host port>:<container port>` to the command creating the container. However, one caveat of this setup is that the port-mapping rules cannot be updated once the container has been created. Hence within the container, the web servers must listen on the same port. But different projects use different settings. One cannot rely on the project settings complying with the local container settings.
@@ -221,3 +239,6 @@ The files folder contains all the configuration files like vimrc and bashrc.
 [minikube]: https://minikube.sigs.k8s.io/
 [kind]: https://kind.sigs.k8s.io/
 [kind-ingress]: https://kind.sigs.k8s.io/docs/user/ingress/
+[k3d]: https://github.com/rancher/k3d/
+[rancher]: http://www.rancher.com/
+[k3s]: https://github.com/rancher/k3s

@@ -1,26 +1,26 @@
 ---
 title: "Single Node K8s in China"
 author: "onichandame"
-date: 2019-04-07
+date: 2020-04-07
 ---
 
 <!-- vim-markdown-toc GFM -->
 
-* [Scenario](#scenario)
-* [Materials](#materials)
-* [Procedures](#procedures)
-  * [Install OS](#install-os)
-  * [Configure Firewall](#configure-firewall)
-  * [Setup Bridge](#setup-bridge)
-  * [Setup Container Runtime](#setup-container-runtime)
-  * [Install kubectl, kubelet and kubeadm](#install-kubectl-kubelet-and-kubeadm)
-  * [Boot](#boot)
-  * [Setup kubectl](#setup-kubectl)
-  * [Install Network Plugin](#install-network-plugin)
-  * [Turn off Master Protection](#turn-off-master-protection)
-  * [Install Load Balancer](#install-load-balancer)
-  * [Install Ingress Controller](#install-ingress-controller)
-* [结语](#结语)
+- [Scenario](#scenario)
+- [Materials](#materials)
+- [Procedures](#procedures)
+  - [Install OS](#install-os)
+  - [Configure Firewall](#configure-firewall)
+  - [Setup Bridge](#setup-bridge)
+  - [Setup Container Runtime](#setup-container-runtime)
+  - [Install kubectl, kubelet and kubeadm](#install-kubectl-kubelet-and-kubeadm)
+  - [Boot](#boot)
+  - [Setup kubectl](#setup-kubectl)
+  - [Install Network Plugin](#install-network-plugin)
+  - [Turn off Master Protection](#turn-off-master-protection)
+  - [Install Load Balancer](#install-load-balancer)
+  - [Install Ingress Controller](#install-ingress-controller)
+- [结语](#结语)
 
 <!-- vim-markdown-toc -->
 
@@ -32,11 +32,11 @@ My new project needs to run on a remote physical machine. The project itself is 
 
 The materials in hand are:
 
-* one physical server
-  * CPU：E3-1220v6
-  * RAM：32GB
-  * HDD：4TB
-* A series of vacant IP address in LAN
+- one physical server
+  - CPU：E3-1220v6
+  - RAM：32GB
+  - HDD：4TB
+- A series of vacant IP address in LAN
 
 # Procedures
 
@@ -123,7 +123,7 @@ The `kubeadm join <control-plane-host>:<control-plane-port> --token <token> --di
 
 ## Setup kubectl
 
-如果当前用户非root，需要配置kubectl以连接集群。
+如果当前用户非 root，需要配置 kubectl 以连接集群。
 If the current user is not root, kubectl needs to be configured in order to connect to the cluster.
 
 ```bash

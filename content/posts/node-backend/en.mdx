@@ -1,19 +1,19 @@
 ---
 title: "Node.js Backend"
 author: "onichandame"
-date: 2019-08-05
+date: 2020-08-05
 ---
 
 <!-- vim-markdown-toc GFM -->
 
-* [POST](#post)
-  * [Formidable](#formidable)
-  * [Body Parser](#body-parser)
-    * [URL Encoded](#url-encoded)
-    * [JSON](#json)
-* [GFW](#gfw)
-* [Authentication & Authorization](#authentication--authorization)
-  * [Auth of End User](#auth-of-end-user)
+- [POST](#post)
+  - [Formidable](#formidable)
+  - [Body Parser](#body-parser)
+    - [URL Encoded](#url-encoded)
+    - [JSON](#json)
+- [GFW](#gfw)
+- [Authentication & Authorization](#authentication--authorization)
+  - [Auth of End User](#auth-of-end-user)
 
 <!-- vim-markdown-toc -->
 
@@ -32,7 +32,7 @@ This tool can handle both field values and files. It is less popular than it's c
 This tool can handle only field values. There are 2 formats: url encoded and json.
 
 ```typescript
-import bodyParser from 'body-parser'
+import bodyParser from "body-parser"
 ```
 
 ### URL Encoded
@@ -61,12 +61,12 @@ The auth(authentication and authorization) is a 2-fold problem. It includes the 
 
 There are several keystones to consider.
 
-* The auth data, permanent(credentials) or temporary(session) must be horizontally scalable. To be specific, a user registered with or logged in a gateway service should not have to do the registration/login all over again when using another gateway instance of the same kind.
-* The different services in the same workflow or serving closely related customers should share the same auth pattern, so that every user in the same workflow is unique allowing business logic and workflow to change flexibly without conflict.
-* The dicision of registration pattern should be set once for all. For internal services, invitation pattern is higher on the list. In this pattern the permission pattern can be simplfied to focus on the business workflow as the security can rely on the real world relationships. For open registration model, the assumption that the end user is an experienced hacker infiltrating our service must be made.
+- The auth data, permanent(credentials) or temporary(session) must be horizontally scalable. To be specific, a user registered with or logged in a gateway service should not have to do the registration/login all over again when using another gateway instance of the same kind.
+- The different services in the same workflow or serving closely related customers should share the same auth pattern, so that every user in the same workflow is unique allowing business logic and workflow to change flexibly without conflict.
+- The dicision of registration pattern should be set once for all. For internal services, invitation pattern is higher on the list. In this pattern the permission pattern can be simplfied to focus on the business workflow as the security can rely on the real world relationships. For open registration model, the assumption that the end user is an experienced hacker infiltrating our service must be made.
 
 Some useful technologies.
 
-* Passport.js
-* MongoDB/Mongoose
-* Express.js
+- Passport.js
+- MongoDB/Mongoose
+- Express.js
