@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2020-09-28
+date: 2020-10-01
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -197,10 +197,10 @@ kubectl rollout restart deploy/coredns -n kube-system
 [K3d][k3d]依靠命令行参数实现个性化配置。我使用如下的命令：
 
 ```bash
-k3d cluster create --no-lb --k3s-server-arg='--disable=traefik' -p 80:30001@agent[0] -p 443:30002@agent[0] -a 3 -v <path to workspace on host>:/git dev
+k3d cluster create --no-lb --k3s-server-arg='--disable=traefik' -p 80:30001@agent[0] -p 443:30002@agent[0] -a 3 -v <path to workspace on host>:/git -v <path to registries configuration file>:/etc/rancher/k3s/registries.yaml dev
 ```
 
-外部负载均衡和 traefik 都被禁用，因为我希望使用 istio 来代替。端口映射的参数也是为 istio 安装做准备。参数`-a 3`指定需要 3 个 worker node。volume mount 参数将宿主机的工作区加载到所有 node 上，以提供稳定的数据存储。
+外部负载均衡和 traefik 都被禁用，因为我希望使用 istio 来代替。端口映射的参数也是为 istio 安装做准备。参数`-a 3`指定需要 3 个 worker node。volume mount 参数将宿主机的工作区加载到所有 node 上，以提供稳定的数据存储。加载到`/etc/rancher/k3s/registries.yaml`的配置文件将官方源如 docker.io 和 gcr.io 替换为镜像源以提升拉取镜像的速度。
 
 istio 的安装方法如上所示。
 

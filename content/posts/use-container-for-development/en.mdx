@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-09-28
+date: 2020-10-01
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -196,10 +196,10 @@ kubectl rollout restart deploy/coredns -n kube-system
 [K3d][k3d] relies on the command line arguments to customize the cluster. The command I use is:
 
 ```bash
-k3d cluster create --no-lb --k3s-server-arg='--disable=traefik' -p 80:30001@agent[0] -p 443:30002@agent[0] -a 3 -v <path to workspace on host>:/git dev
+k3d cluster create --no-lb --k3s-server-arg='--disable=traefik' -p 80:30001@agent[0] -p 443:30002@agent[0] -a 3 -v <path to workspace on host>:/git -v <path to registries configuration file>:/etc/rancher/k3s/registries.yaml dev
 ```
 
-The arguments specifically disables the external load balancer and traefik. As I will install istio manually as a replacement. The port mapping argument is also for istio installation. the `-a 3` argument instructs k3d to spin up 3 worker nodes. the volume mount argument maps the workspace on the host to all the nodes for persistent data storage.
+The arguments specifically disables the external load balancer and traefik. As I will install istio manually as a replacement. The port mapping argument is also for istio installation. the `-a 3` argument instructs k3d to spin up 3 worker nodes. the volume mount argument maps the workspace on the host to all the nodes for persistent data storage. The configuration mounted to `/etc/rancher/k3s/registries.yaml` replaces the official registries of docker.io or gcr.io by the mirror registries to speed up the image pulling process.
 
 The installation of istio follows the same instruction above.
 
