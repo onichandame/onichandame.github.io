@@ -22,13 +22,14 @@
     "gatsby-transformer-sharp": "^2.5.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-helmet": "^6.0.0",
-    "react-three-fiber": "^4.2.8",
+    "react-helmet": "^6.1.0",
+    "react-three-fiber": "^5.0.3",
     "remark-slug": "^6.0.0",
-    "three": "^0.117.1"
+    "three": "^0.121.1"
   },
   "devDependencies": {
     "@types/react-helmet": "^5.0.15",
+    "@types/three": "^0.103.2",
     "husky": "^4.2.5",
     "prettier-eslint": "^9.0.1",
     "pretty-quick": "^3.0.0",
@@ -39,8 +40,8 @@
     "gatsby"
   ],
   "license": "MIT",
-  "husky":{
-    "hooks":{
+  "husky": {
+    "hooks": {
       "pre-commit": "pretty-quick --staging"
     }
   },
