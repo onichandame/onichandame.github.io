@@ -1,10 +1,10 @@
-require("ts-node").register({ files: true })
+require("ts-node").register({ files: true });
 
 module.exports = {
   siteMetadata: {
     author: "onichandame",
     github: "https://github.com/onichandame",
-    homepage: "https://onichandame.github.io"
+    homepage: "https://onichandame.github.io",
   },
   plugins: [
     "gatsby-plugin-typescript",
@@ -13,16 +13,16 @@ module.exports = {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `translations`,
-        path: `${__dirname}/content/translations`
-      }
+        path: `${__dirname}/content/translations`,
+      },
     },
     "gatsby-transformer-json",
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `images`,
-        path: `${__dirname}/content/images`
-      }
+        path: `${__dirname}/content/images`,
+      },
     },
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
@@ -35,32 +35,43 @@ module.exports = {
         background_color: `#663399`,
         theme_color: `#663399`,
         display: `minimal-ui`,
-        icon: `content/images/gatsby-icon.png` // This path is relative to the root of the site.
-      }
+        icon: `content/images/gatsby-icon.png`, // This path is relative to the root of the site.
+      },
     },
     // formatted posts
     {
       resolve: "gatsby-source-filesystem",
       options: {
         name: "post",
-        path: `${__dirname}/content/posts/`
-      }
+        path: `${__dirname}/content/posts/`,
+      },
     },
     {
       resolve: "gatsby-source-filesystem",
       options: {
         name: "resume",
-        path: `${__dirname}/content/resume`
-      }
+        path: `${__dirname}/content/resume`,
+      },
     },
     {
       resolve: "gatsby-plugin-mdx",
       options: {
-        remarkPlugins: [require("remark-slug")] // add heading anchor to mdx posts
-      }
+        remarkPlugins: [{ resolve: "remark-slug" }], // add heading anchor to mdx posts
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-mermaid`,
+          },
+          {
+            resolve: `gatsby-remark-images`,
+            options: { maxWidth: 1035, sizeByPixelDensity: true },
+          },
+          { resolve: "gatsby-remark-copy-linked-files" },
+        ],
+        extensions: [`.mdx`, `.md`],
+      },
     },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
-    `gatsby-plugin-offline`
-  ]
-}
+    `gatsby-plugin-offline`,
+  ],
+};

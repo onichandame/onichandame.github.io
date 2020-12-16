@@ -7,6 +7,8 @@
   "dependencies": {
     "@material-ui/core": "^4.9.14",
     "@material-ui/icons": "^4.9.1",
+    "@mdx-js/mdx": "^1.6.22",
+    "@mdx-js/react": "^1.6.22",
     "@onichandame/math": "^0.0.2",
     "drei": "^0.0.52",
     "gatsby": "^2.21.21",
@@ -17,9 +19,15 @@
     "gatsby-plugin-react-helmet": "^3.3.1",
     "gatsby-plugin-sharp": "^2.6.2",
     "gatsby-plugin-typescript": "^2.4.2",
+    "gatsby-remark-copy-linked-files": "^2.7.0",
+    "gatsby-remark-graphviz": "^1.7.0",
+    "gatsby-remark-images": "^3.8.0",
+    "gatsby-remark-mermaid": "^2.1.0",
     "gatsby-source-filesystem": "^2.3.1",
     "gatsby-transformer-json": "^2.4.2",
+    "gatsby-transformer-remark": "^2.13.0",
     "gatsby-transformer-sharp": "^2.5.2",
+    "puppeteer": "^5.5.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^6.0.0",
@@ -39,8 +47,8 @@
     "gatsby"
   ],
   "license": "MIT",
-  "husky":{
-    "hooks":{
+  "husky": {
+    "hooks": {
       "pre-commit": "pretty-quick --staging"
     }
   },

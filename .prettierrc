@@ -1,4 +1,5 @@
 {
+  "semi":"es5",
   "arrowParens": "avoid",
   "semi": false
 }
