@@ -19,9 +19,20 @@ For instance, a developer may want to have a testing server for a project. If th
 
 Here records some useful techniques in work around the censorship of the domain/server. They are actively updated to reflect the latest change. **Do please respect other people's freedom and use them within the legal boundary**.
 
-# Use A Custom Port
+# Principles
+
+This section records some principles to solve the problem. Based on these principles many different implementations are possible.
+
+## Use A Custom Port
 
 Usually the traffic towards some well-known ports will be scanned and blocked if not found in the registration list. A simple solution would be using a less well-known port to serve. The total amount of ports on the internet is too large to analyze them all in real-time, so a custom port would normally be let go. This is the foundation of any other extended techniques.
+
+```mermaid
+sequenceDiagram
+participant Browser
+Browser -x Server: port 80
+Browser ->> Server: port 3000
+```
 
 Using a custom port brings some difficulties in usage.
 
@@ -30,4 +41,42 @@ Using a custom port brings some difficulties in usage.
 
 To bypass the inconveniences above, something needs to be done.
 
-# Reverse Proxy
+## Reverse Proxy
+
+To access the server from a normal port like 80 and 443, a reverse proxy can be used.
+
+```mermaid
+sequenceDiagram
+participant Browser
+Browser ->> Reverse Proxy: port 80
+Reverse Proxy ->> Server: port 3000
+```
+
+In this case the user(browser) treats the reverse proxy as the "server". The revese proxy fetches the content from the real server on behalf of the user and returns the content to the user. In this scenario, if the reverse proxy is trusted by the authority then you have set up a server to serve just like any other functioning server without dealing with the authority.
+
+## TLS
+
+Based on the setup above, a combination of a reverse proxy and the use of a custom port has already given you an HTTP server. However, security is still a concern. TLS encryption needed not only because it prevents attack from bad guys, it also helps hide the content from the oversight, hence the chance of getting into troubles is reduced.
+
+In the circuit shown above, there are 2 connections for every request. Both of the connections need to be protected but different tactics apply.
+
+```mermaid
+sequenceDiagram
+participant Browser
+Browser ->> Reverse Proxy: CA trusted certificate
+Reverse Proxy ->> Server: Reverse proxy trusted certificate
+```
+
+The certificate of the reverse proxy can be set up in a more convenient way. Many providers like CloudFlare offer it out of the box.
+
+The certificate installed on the server should be trusted by the reverse proxy. Many service providers offer free certificates signed by themselves for this use case.
+
+# Practice
+
+This section records the practices I exercised based on the principles.
+
+## Choice of Service Provider
+
+The key component in the chain is the reverse proxy. Normally a cloud service provider is the best choice as it has all the functionalities we need out of the box.
+
+There surely are many possible options out there. But I have only used CloudFlare, the most popular one.
