@@ -1,0 +1,33 @@
+---
+title: "Bypass Domain Censorship"
+author: "onichandame"
+date: 2020-12-18
+---
+
+import {LocalizedLink} from '../../../src/i18n'
+
+<!-- vim-markdown-toc GFM -->
+
+- [Use A Custom Port](#use-a-custom-port)
+- [Reverse Proxy](#reverse-proxy)
+
+<!-- vim-markdown-toc -->
+
+In certain countries or areas, people are not allowed to maintain their own sites without registering the server, domain or IP to the authority. This restriction has some positive effects that the authority can easily find whoever responsible for a site spreading damaging information like terrorism or children pornography. However this also imposes some very difficult inconvenience, especially to the web developers.
+
+For instance, a developer may want to have a testing server for a project. If the testing site needs to go through the entire registration process, the delivery cycle would be extended unnecessarily just for the registration, not to mention the extra cost of time and money if the registration fails eventually. Moreover, each site must come with a unique testing area as the authority needs to regularly check that the content of the registered site is virtually the same as it was on the registration day.
+
+Here records some useful techniques in work around the censorship of the domain/server. They are actively updated to reflect the latest change. **Do please respect other people's freedom and use them within the legal boundary**.
+
+# Use A Custom Port
+
+Usually the traffic towards some well-known ports will be scanned and blocked if not found in the registration list. A simple solution would be using a less well-known port to serve. The total amount of ports on the internet is too large to analyze them all in real-time, so a custom port would normally be let go. This is the foundation of any other extended techniques.
+
+Using a custom port brings some difficulties in usage.
+
+1. The visitors now have to type in the port in the url like `www.example.com:8080`.
+2. In many browsers, a common url is automatically upgraded to `https`. So you type in `www.example.com` and the browser takes you to `https://www.example.com`. This convenience is not possible if a custom port is used though.
+
+To bypass the inconveniences above, something needs to be done.
+
+# Reverse Proxy
