@@ -56,7 +56,7 @@ module.exports = {
     {
       resolve: "gatsby-plugin-mdx",
       options: {
-        remarkPlugins: [{ resolve: "remark-slug" }], // add heading anchor to mdx posts
+        remarkPlugins: [{ resolve: "gatsby-remark-autolink-headers" }], // add heading anchor to mdx posts
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-mermaid`,
