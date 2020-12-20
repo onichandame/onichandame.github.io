@@ -1,36 +1,37 @@
 ---
 title: "绕过网站备案限制"
 author: "onichandame"
-date: 2020-12-19
+date: 2020-12-20
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
 
 <!-- vim-markdown-toc GFM -->
 
-- [Principles](#principles)
-  - [Use A Custom Port](#use-a-custom-port)
-  - [Reverse Proxy](#reverse-proxy)
+- [原则](#原则)
+  - [使用非常规端口](#使用非常规端口)
+  - [反向代理](#反向代理)
   - [TLS](#tls)
-- [Recommended Practices](#recommended-practices)
-  - [Choice of Service Provider](#choice-of-service-provider)
-  - [TLS on Origin](#tls-on-origin)
+- [推荐实践](#推荐实践)
+  - [选择服务提供商](#选择服务提供商)
+  - [源站的 TLS](#源站的-tls)
+  - [反代](#反代)
 
 <!-- vim-markdown-toc -->
 
-In certain countries or areas, people are not allowed to maintain their own sites without registering the server, domain or IP to the authority. This restriction has some positive effects that the authority can easily find whoever responsible for a site spreading damaging information like terrorism or children pornography. However this also imposes some very difficult inconvenience, especially to the web developers.
+在一些国家和地区，所有的网站、域名和 IP 都必须备案等级，否则不允许提供网站服务。这个规则有一些无可替代的好处，比如可以轻易追踪到诸如散播恐怖或黄色信息的网站的负责人。但对于开发者来说还是有一些不方便的地方。
 
-For instance, a developer may want to have a testing server for a project. If the testing site needs to go through the entire registration process, the delivery cycle would be extended unnecessarily just for the registration, not to mention the extra cost of time and money if the registration fails eventually. Moreover, each site must come with a unique testing area as the authority needs to regularly check that the content of the registered site is virtually the same as it was on the registration day.
+举个例子，一个项目可能会需要一个测试服务器。如果测服也需要走完备案等级全流程的话，先不说等级被拒的可能性带来的额外支出，单单是走流程就需要额外延长开发周期。更为严重的是，每一个网站都需要注册独立的测服，因为管局需要定期检查网站的内容是否与备案时一致。
 
-Here records some useful techniques in work around the censorship of the domain/server. They are actively updated to reflect the latest change. **Do please respect other people's freedom and use them within the legal boundary**.
+这里仅记录一些绕过域名和服务器监管的技术。这些记录可能会跟随现状实时变化。**为了他人的自由，请在法律范围内使用这些技术！**
 
-# Principles
+# 原则
 
-This section records some principles to solve the problem. Based on these principles many different implementations are possible.
+本章记录解决问题所需的一些原则。基于这些原则可以有很多种具体实现方式。
 
-## Use A Custom Port
+## 使用非常规端口
 
-Usually the traffic towards some well-known ports will be scanned and blocked if not found in the registration list. A simple solution would be using a less well-known port to serve. The total amount of ports on the internet is too large to analyze them all in real-time, so a custom port would normally be let go. This is the foundation of any other extended techniques.
+监管通常采用的实时监控手段都基于对指向特定端口的流量的扫描，并将未备案的流量封锁。因此一个直观的方案就是采用非常规的端口以绕过监管。网络上端口的总数以及庞大多样的流量让全量实时分析监控成为一个不可能的任务，因此指向非常规端口的流量默认都会被放行。这也是所有延申方案的基石。
 
 ```mermaid
 sequenceDiagram
@@ -39,16 +40,16 @@ Browser -x Server: port 80
 Browser ->> Server: port 3000
 ```
 
-Using a custom port brings some difficulties in usage.
+但是非常规的端口在使用中会带来一些不便。
 
-1. The visitors now have to type in the port in the url like `www.example.com:8080`.
-2. In many browsers, a common url is automatically upgraded to `https`. So you type in `www.example.com` and the browser takes you to `https://www.example.com`. This convenience is not possible if a custom port is used though.
+1. 访问者需要在 url 种加入端口，如`www.example.com:8080`。
+2. 在很多浏览器种，一个正常的 url 会被自动升级成`https`。因此当输入`www.example.com`时，浏览器会自动导向`https://www.example.com`。但当使用非常规端口时就不会用这种便利。
 
-To bypass the inconveniences above, something needs to be done.
+为了绕过上述不便，可以采用一些方案。
 
-## Reverse Proxy
+## 反向代理
 
-To access the server from a normal port like 80 and 443, a reverse proxy can be used.
+为使用常规端口如 80 和 443，可以使用反向代理来实现。
 
 ```mermaid
 sequenceDiagram
@@ -57,13 +58,13 @@ Browser ->> Reverse Proxy: port 80
 Reverse Proxy ->> Server: port 3000
 ```
 
-In this case the user(browser) treats the reverse proxy as the "server". The revese proxy fetches the content from the real server on behalf of the user and returns the content to the user. In this scenario, if the reverse proxy is trusted by the authority then you have set up a server to serve just like any other functioning server without dealing with the authority.
+在这个设计中，用户或者说浏览器，将反代视为“服务器”。这个反代会为用户获取真实服务器上的信息并返回给用户。在这个场景中，如果反代已经被管局信任，则可以获得一个看起来与其它正常备案的服务器一样的服务器，在此过程中不需要与管局做任何交流。
 
 ## TLS
 
-Based on the setup above, a combination of a reverse proxy and the use of a custom port has already given you an HTTP server. However, security is still a concern. TLS encryption needed not only because it prevents attack from bad guys, it also helps hide the content from the oversight, hence the chance of getting into troubles is reduced.
+基于上述的原则，一个反代和使用非常规端口的服务器已经可以提供完整的 HTTP 服务器。但是安全性仍然没有解决。TLS 加密的意义不仅在于防范黑客入侵，还能将流量从监管的眼中隐藏起来，因此可以降低被盯上的风险。
 
-In the circuit shown above, there are 2 connections for every request. Both of the connections need to be protected but different tactics apply.
+在上述的回路中，每个请求都需要 2 个独立的连接。这两个连接都需要不同的保密策略。
 
 ```mermaid
 sequenceDiagram
@@ -72,40 +73,41 @@ Browser ->> Reverse Proxy: CA trusted certificate
 Reverse Proxy ->> Server: Reverse proxy trusted certificate
 ```
 
-The certificate of the reverse proxy can be set up in a more convenient way. Many providers like CloudFlare offer it out of the box.
+反代的证书设置比较容易，许多提供商如 CloudFlare 都可以直接提供解决方案。
 
 The certificate installed on the server should be trusted by the reverse proxy. Many service providers offer free certificates signed by themselves for this use case.
+在服务器上安装的证书一定要能被反代信任。许多服务提供商都能为此提供免费的自签名证书。
 
-# Recommended Practices
+# 推荐实践
 
-This section records the practices I exercised based on the above principles.
+本章记录我在实现上面的原则时采用过的一些实践。
 
-## Choice of Service Provider
+## 选择服务提供商
 
-The key component in the tool chain is the reverse proxy. Normally a cloud service provider is the best choice as it has all the functionalities we need out of the box.
+最关键的一个组件就是反代。通常云服务提供商都能提供所有需要的功能。
 
-There surely are many possible options out there. But I have only used CloudFlare, the most popular one.
+当然有许多提供商以供选择，但我只用过 CloudFlare，也是最著名的一家。
 
-CloudFlare is not only a reverse proxy provider, it is also a DNS service provider. Below is how I started to manage my sites and domains using CloudFlare. [The official docs][cf] has stated every detail already. I just need to re-emphasize one point relating to the settings of the domain registrar.
+CloudFlare 不仅是反代的提供商，它还能提供 DNS 服务。下面记录我如何开始使用 CloudFlare 管理我的站点。[官方文档][cf]中已经有所有的细节，我只需要重申一个与域名注册商有关的配置。
 
-CloudFlare is able to manfrom any registrar, as long as the name server settings are correct. The upstream name server should be set to the ones provided by CloudFlare at the registrar's dashboard. Then the NS records must be set to match the name server settings. This effect of this change may take several hours to ripple through the entire internet.
+CloudFlare 可以与任何注册商配合，只需要调整域名服务器的设定即可。注册商的管理面板中的上游域名服务器应该采用 CloudFlare 提供的那些，并且将 NS 解析记录改成这些域名服务器。此项更改可能需要几个小时才能在全网生效。
 
-## TLS on Origin
+## 源站的 TLS
 
-In the CloudFlare's terminology, the real server serving the site is called "origin". The proxy mode is on by default to hide the IP address of the origin from attackers. All the DNS records resolve to the same reverse proxy only. The proxy fetches the content from the origin and returns to the visitor on every request. The topology has already been discussed in the [principle section](#principles).
+在 CloudFlare 的语境中，真实的服务器被称为“源站”。为将源站的真实 IP 隐藏起来，默认会启动代理模式。所有的 DNS 记录都会指向同一个反代服务器，这个反代服务器会向源站获取信息并返回给用户。其拓扑结构已经在[原则部分](#principles)讨论过。
 
-One issue remaining is the security of the connection between the CloudFlare's reverse proxy and the origin. In this single channel, the CloudFlare reverse proxy acts as the client and the origin acts as the server. Hence the TLS certificate installed on the origin must be trusted by the reverse proxy. Fortunately CloudFlare offers free TLS certificate for the domains managed by it.
+一个尚未解决的问题是反代服务器与源站之间的流量的安全性。在这个通道中，CloudFlare 的反代作为客户端，而源站则是服务端。因此 TLS 证书需要安装在源站中并被反代所信任。幸运的是，CloudFlare 为所有在其平台管理的域名提供免费 TLS 证书。
 
 ```mermaid
 sequenceDiagram
 site.example.com(Reverse Proxy) ->> origin.example.com(Origin): TLS certified by CloudFlare
 ```
 
-## Reverse Proxy
+## 反代
 
-In CloudFlare, the reverse proxy can be achieved in many ways, the most flexible one being [worker][worker].
+在 CloudFlare 中，反代可以用许多方法实现。其中最方便的一种就是[worker][worker]。
 
-[Worker][worker] is a serverless technology offered by CloudFlare. To set up a simple reverse proxy simply masking the true destination, only few lines of code is required to make it work:
+[Worker][worker]本质上是一种 CloudFlare 提供的无服务器技术。仅需几行代码即可启用一个简单的反代：
 
 ```javascript
 const ORIGIN = "origin.example.com";
@@ -120,7 +122,7 @@ addEventListener("fetch", (event) => {
 });
 ```
 
-The worker needs to be configured with a route(subdomain) for convenience, otherwise the access url is something randomized and long.
+这个 worker 需要与路由（子域名）配合以提供完整方便的解决方案。否则其 url 会是一个非常长的随机字符串。
 
 [cf]: https://support.cloudflare.com/hc/en-us/articles/201720164-Creating-a-Cloudflare-account-and-adding-a-website#2YulMb5YJTVnMxgAgNWdS2
 [worker]: https://workers.cloudflare.com/
