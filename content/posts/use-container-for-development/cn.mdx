@@ -143,7 +143,7 @@ HyperV 就是一个传统的 VM hypervisor，Docker 用它建立一个跑 docker
 
 ```bash
 # alias to `kubectl`
-docker run -it --rm -v <path to kubeconfig>:/.kube/config bitnami/kubectl:latest
+docker run -it --rm -v <path to kubeconfig directory>:/root/.kube onichandame/docker-kubectl:latest
 ```
 
 使用 kunernetes 作为开发环境，很多事情都要重新考虑。
