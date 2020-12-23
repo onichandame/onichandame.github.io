@@ -1,7 +1,7 @@
 ---
 title: "用容器开发"
 author: "onichandame"
-date: 2020-10-01
+date: 2020-12-23
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -139,6 +139,13 @@ HyperV 就是一个传统的 VM hypervisor，Docker 用它建立一个跑 docker
 
 我的生产环境是 kubernetes，云端和本地都有。因此我需要配置一个符合生产环境的开发环境。
 
+管理 kubernetes 集群的 CLI 工具是[kubectl][kubectl]。这个工具可以在有 k8s 集群的情况下完全代替`docker`工具。但是在很多平台（ubuntu/apt, redhat/dnf 等）上这个工具都不在官方软件池中，因此需要自己手动安装。一个更简单的方案是在容器中跑这个工具。
+
+```bash
+# alias to `kubectl`
+docker run -it --rm -v <path to kubeconfig>:/.kube/config bitnami/kubectl:latest
+```
+
 使用 kunernetes 作为开发环境，很多事情都要重新考虑。
 
 ### 集群搭建
@@ -243,3 +250,4 @@ files 目录下包含所有必须的配置文件，如 bashrc 和 vimrc 等。
 [k3d]: https://github.com/rancher/k3d/
 [rancher]: http://www.rancher.com/
 [k3s]: https://github.com/rancher/k3s
+[kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/

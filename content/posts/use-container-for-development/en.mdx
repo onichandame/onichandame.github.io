@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-10-01
+date: 2020-12-23
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -139,6 +139,13 @@ Thanks to [this issue][hyperv]
 
 My production environment is kubernetes, local or cloud. Therefore it would be more convenient for me to setup a development environment that is consistent with the production environment.
 
+The CLI tool to manage a kubernetes cluster is [kubectl][kubectl]. This tool can totally replace the `docker` CLI when a k8s cluster is available. However, I find it annoying to install a dangling executable as it is not available in package managers of many platforms, like ubuntu/apt, redhat/dnf etc. A simple solution is to run it in a docker container:
+
+```bash
+# alias to `kubectl`
+docker run -it --rm -v <path to kubeconfig>:/.kube/config bitnami/kubectl:latest
+```
+
 To run development environment in kubernetes, things are different.
 
 ### Setup
@@ -242,3 +249,4 @@ The files folder contains all the configuration files like vimrc and bashrc.
 [k3d]: https://github.com/rancher/k3d/
 [rancher]: http://www.rancher.com/
 [k3s]: https://github.com/rancher/k3s
+[kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
