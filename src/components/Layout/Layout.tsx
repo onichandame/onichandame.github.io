@@ -12,7 +12,7 @@ type Props = PageProps<{}, { locale: string }>
 
 const useStyles = makeStyles((theme: Theme) => ({
   main: {
-    padding: theme.spacing(2)
+    padding: theme.spacing(0)
   }
 }))
 
