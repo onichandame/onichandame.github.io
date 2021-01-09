@@ -1,7 +1,7 @@
 ---
 title: "Use Container for Development"
 author: "onichandame"
-date: 2020-12-23
+date: 2021-01-09
 ---
 
 import {LocalizedLink} from '../../../src/i18n'
@@ -23,6 +23,7 @@ import {LocalizedLink} from '../../../src/i18n'
       - [Kind](#kind)
       - [K3D](#k3d)
   - [Port Forwarding](#port-forwarding)
+  - [Vim in Docker](#vim-in-docker)
 - [Implementation](#implementation)
 
 <!-- vim-markdown-toc -->
@@ -219,6 +220,21 @@ A solution to this problem is to redirect the requests for the mapped port to th
 ```bash
 # redirect requests for the mapped port to the server port
 socat TCP4-LISTEN:<mapped port>,fork,reuseaddr TCP4:localhost:<server port>
+```
+
+## Vim in Docker
+
+In many cases a fully functional cluster is too heavy to deploy, but a pre-configured vim in a docker image is needed. The best solution would be to mount the file being edited to the container and use the vim inside the container to edit the file. The setup is of course platform-dependent.
+
+Powershell:
+
+```powershell
+function vim {
+  $filepath=$ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($args[0])
+  $parent=Split-Path -Path $filepath
+  $filename=Split-Path -Path $filepath -Leaf
+  invoke-expression "docker run -it --rm -e SSHD_DISABLED=true -e DIND_DISABLED=true -v ${parent}:/parent -w /parent <image name> vim $filename"
+}
 ```
 
 # Implementation

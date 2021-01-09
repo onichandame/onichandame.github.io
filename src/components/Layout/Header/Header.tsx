@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1
   },
+  tab: { marginLeft: theme.spacing(2) },
   drawer: {
     width: drawerWidth
   },
@@ -49,46 +50,22 @@ export const Header: FC = () => {
   return (
     <>
       <HideOnScroll>
-        <AppBar color={"primary"} position={"sticky"} className={styles.root}>
+        <AppBar color={"primary"} position="static" className={styles.root}>
           <Toolbar>
-            <Grid
-              container
-              direction={"row"}
-              justify={"space-between"}
-              alignItems={"center"}
-            >
-              <Grid item>
-                <Grid
-                  container
-                  alignItems={"center"}
-                  direction={"row"}
-                  spacing={2}
-                >
-                  <Grid item>
-                    <Title />
-                  </Grid>
-                  <Grid item>
-                    <Blog />
-                  </Grid>
-                  <Grid item>
-                    <About />
-                  </Grid>
-                  <Grid item>
-                    <Contact />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item>
-                <Grid alignItems={"center"} container direction={"row"}>
-                  <Grid item>
-                    <Lang />
-                  </Grid>
-                  <Grid item>
-                    <Github />
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
+            <Title />
+            <div className={styles.tab}>
+              <Blog />
+            </div>
+            <div className={styles.tab}>
+              <About />
+            </div>
+            <div className={styles.tab}>
+              <Contact />
+            </div>
+            <div style={{ flexGrow: 1 }} />
+            <div style={{ flexGrow: 1 }} />
+            <Lang />
+            <Github />
           </Toolbar>
         </AppBar>
       </HideOnScroll>

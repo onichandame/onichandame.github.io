@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import { graphql, PageProps } from "gatsby"
 import { MDXRenderer } from "gatsby-plugin-mdx"
 import { Grid, Typography } from "@material-ui/core"
+import { useTheme } from "@material-ui/core/styles"
 
 import { dateFormat } from "../utils"
 import { SEO } from "../components/SEO"
@@ -26,10 +27,11 @@ type Props = PageProps<
 >
 
 const Post: FC<Props> = ({ data: { mdx }, pageContext: { locale } }) => {
+  const theme = useTheme()
   return (
     <>
       <SEO title={mdx.frontmatter.title} lang={locale} />
-      <Grid container direction={"column"} spacing={2}>
+      <Grid container direction={"column"} alignItems="stretch">
         <Grid item>
           <Typography variant={"h3"}>{mdx.frontmatter.title}</Typography>
         </Grid>
@@ -47,7 +49,7 @@ const Post: FC<Props> = ({ data: { mdx }, pageContext: { locale } }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item>
+        <Grid item style={{ padding: theme.spacing(2) }}>
           <MDXRenderer headings={mdx.headings}>{mdx.body}</MDXRenderer>
         </Grid>
       </Grid>

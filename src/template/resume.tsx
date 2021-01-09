@@ -24,7 +24,7 @@ const Post: FC<Props> = ({ data: { mdx }, pageContext: { locale } }) => {
   return (
     <>
       <SEO title={author} lang={locale} />
-      <Grid container direction={"column"} spacing={2} alignItems={"center"}>
+      <Grid container direction={"column"} spacing={0} alignItems={"center"}>
         <Grid item>
           <Typography variant={"h3"}>{author}</Typography>
         </Grid>
