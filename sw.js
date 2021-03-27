@@ -27,26 +27,26 @@ workbox.core.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "webpack-runtime-38050ada14d0c54770e0.js"
+    "url": "webpack-runtime-b8f61243929805fe6c86.js"
   },
   {
     "url": "framework-beda7bde9d7dca0755ce.js"
   },
   {
-    "url": "4bdf9057-bb8d6e3074bb6e323a3e.js"
+    "url": "4bdf9057-72ae28b8f8b272af811a.js"
   },
   {
-    "url": "fb7d5399-58798ebfc9c8cc593565.js"
+    "url": "fb7d5399-9711c301a368b60666b0.js"
   },
   {
-    "url": "d5b08420-07f367315fbba8850a0e.js"
+    "url": "d5b08420-ef0688e1927cb8badd4a.js"
   },
   {
-    "url": "app-5c2916b261110a942aba.js"
+    "url": "app-f6502f71dfa49857b242.js"
   },
   {
     "url": "offline-plugin-app-shell-fallback/index.html",
-    "revision": "356105f398f4b4a415ab86a98ec53aab"
+    "revision": "bace9fbcc279943223f77114165ca1cb"
   },
   {
     "url": "component---cache-caches-gatsby-plugin-offline-app-shell-js-b0556ce5127c1a3e2490.js"
@@ -69,7 +69,7 @@ self.__precacheManifest = [
   },
   {
     "url": "page-data/app-data.json",
-    "revision": "6ca95614d543ae91c9c75c176ed00ae1"
+    "revision": "c976a4897e4e899d6cad7a44348aee3e"
   },
   {
     "url": "polyfill-818af64753e5306e538b.js"
@@ -83,7 +83,7 @@ workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 
 workbox.routing.registerRoute(/(\.js$|\.css$|static\/)/, new workbox.strategies.CacheFirst(), 'GET');
 workbox.routing.registerRoute(/^https?:.*\/page-data\/.*\.json/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
-workbox.routing.registerRoute(/^https?:.*\.(png|jpg|jpeg|webp|svg|gif|tiff|js|woff|woff2|json|css)$/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
+workbox.routing.registerRoute(/^https?:.*\.(png|jpg|jpeg|webp|avif|svg|gif|tiff|js|woff|woff2|json|css)$/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
 workbox.routing.registerRoute(/^https?:\/\/fonts\.googleapis\.com\/css/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
 
 /* global importScripts, workbox, idbKeyval */
@@ -168,7 +168,7 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
   // Check for resources + the app bundle
   // The latter may not exist if the SW is updating to a new version
   const resources = await idbKeyval.get(`resources:${pathname}`)
-  if (!resources || !(await caches.match(`/app-5c2916b261110a942aba.js`))) {
+  if (!resources || !(await caches.match(`/app-f6502f71dfa49857b242.js`))) {
     return await fetch(event.request)
   }
 
